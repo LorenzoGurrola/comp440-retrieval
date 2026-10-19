@@ -34,13 +34,13 @@ XXXX
 
 XXXX
 
-### What did TF-IDF get right and wrong?
+### Did the movies you meant come up? What did TF-IDF get right and wrong?
 
 XXXX
 
 ## Part 4: The question bank
 
-### The TF-IDF scores, as you read them
+### Which kind of question did TF-IDF handle best, and which worst? By how much?
 
 XXXX
 
@@ -54,11 +54,7 @@ XXXX
 
 XXXX
 
-### The embedding scores next to TF-IDF's, as you read them
-
-XXXX
-
-### Where does each method win, and why?
+### Where does each method do better, and why?
 
 XXXX
 

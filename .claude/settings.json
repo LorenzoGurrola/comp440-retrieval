@@ -26,6 +26,17 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -d \"${CLAUDE_PROJECT_DIR:-.}/../planning\" ]; then echo 'This is the instructor copy of the retrieval template, the retrieval/ folder inside the private comp440-retrieval-sim workshop (../planning exists). The tutor rules in CLAUDE.md do not apply here: you are working on the template, not tutoring a student. Do not run dump_transcript.py here.'; fi; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

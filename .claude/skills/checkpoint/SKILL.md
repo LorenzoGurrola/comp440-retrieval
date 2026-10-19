@@ -18,10 +18,11 @@ only, and then go back to the current step.
 4. If anything handed in is not committed, stage it by name (see "Commits" in `CLAUDE.md`) and
    commit it as `Save work in progress`. Run `git push`. The "Saved on GitHub" part of
    `run_all.py`'s output should now hold nothing; if a push failed, say what the error means.
-5. Give them the form, https://forms.gle/mgKcnqzTGxNaGvteA, and tell them to choose "activity"
-   and paste their repository's GitHub URL into the textbox. Give them that URL, from
-   `git remote get-url origin`, written as an https://github.com/ address. Ask whether they have
-   submitted it, and wait.
+5. Give them the form in these words: complete the
+   [Work Submission Form](https://forms.gle/mgKcnqzTGxNaGvteA), choose "Activity submission",
+   and in its box write "Representing and Retrieving Knowledge" and your repository's GitHub
+   URL. Give them that URL, from `git remote get-url origin`, written as an https://github.com/
+   address. Ask whether they have submitted it, and wait.
 6. When they say they have, run `python3 dump_transcript.py` once more and `git push`. Only then
    say the finish line, `YOU ARE FINISHED!`, in bold on a line of its own. Never say it before
    they tell you they have submitted.

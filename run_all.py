@@ -247,9 +247,10 @@ def main():
     n = len(missing)
     print(f"\n{n} thing{'' if n == 1 else 's'} missing.")
     if not missing:
-        first = "Your work is pushed, so submit" if not unsaved else "Commit and push your work, then submit"
-        print(f"{first} the Work Submission Form, {FORM}: choose \"activity\" and paste "
-              "your repository's GitHub URL into the textbox.")
+        first = "Your work is pushed, so complete" if not unsaved else "Commit and push your work, then complete"
+        print(f"{first} the Work Submission Form, {FORM}, choose \"Activity submission\", and "
+              "in its box write \"Representing and Retrieving Knowledge\" and your repository's "
+              "GitHub URL.")
     return 0 if not missing and not unsaved else 1
 
 
