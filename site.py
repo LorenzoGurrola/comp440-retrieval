@@ -160,8 +160,8 @@ def score_table(results):
             cells += [f"<td>{first} of {n:,}</td>", f"<td>{top} of {n:,}</td>"]
         if n:
             rows.append(f'<tr><th scope="row">{label}</th>{"".join(cells)}</tr>')
-    return f"""<div class="table-wrap"><table class="scores">
-<caption>How many times each method put the right movie 1st, and how many times in its top {TOP}, for each kind of question.</caption>
+    return f"""<p class="caption" id="scores-caption">How many times each method put the right movie 1st, and how many times in its top {TOP}, for each kind of question.</p>
+<div class="table-wrap"><table class="scores" aria-describedby="scores-caption">
 <thead><tr>{"".join(head)}</tr><tr>{sub}</tr></thead>
 <tbody>
 {chr(10).join(rows)}
@@ -235,7 +235,7 @@ def columns(found, answer_id=None, notes=None):
                 lines.append(f'<span class="words">Matched: {marked}</span>')
             plot = highlight(overview(hit["id"]), words)
             out.append(f'<li class="hit{" right" if right else ""}"><details><summary>'
-                       f'{"".join(lines)}</summary><p class="plot">{plot}</p></details></li>')
+                       f'{" ".join(lines)}</summary><p class="plot">{plot}</p></details></li>')
         out.append("</ol>")
         if key == "tfidf" and len(hits) < TOP:
             shares = "No plot summary shares" if not hits else f"Only {len(hits)} plot summaries share"
