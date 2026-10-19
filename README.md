@@ -1,11 +1,10 @@
 # COMP 440: Representing and Retrieving Knowledge
 
 **Fall 2026 · In class, Tuesday, October 20 · Individual · graded for good faith**
+
 **Finish in class if you can. Anything unfinished is due 8:00am Thursday, October 22.**
 
-Do Parts 0 to 5 and give your answers in your own words. There's no answer I'm looking for in
-your write-up. A method that does badly on your movies is a result, not a mistake. Questions go
-to `#comp440-f26`.
+Do Parts 0 to 5 and give your answers in your own words. 
 
 **When you are finished, complete the [Work Submission Form](https://forms.gle/mgKcnqzTGxNaGvteA), choose "Activity submission", and in its box write "Representing and Retrieving Knowledge" and your repository's GitHub URL.**
 
@@ -20,7 +19,7 @@ to `#comp440-f26`.
 
 ## Overview
 
-On October 1 we scored the words in Wikipedia articles with TF-IDF and looked at GloVe word
+On October 1 we scored the words in Wikipedia articles with TF-IDF and talked about word
 embeddings. Today you'll use both ideas to search for movies.
 
 The collection, `data/movies.jsonl`, is 4,309 movies: the movies from HW1, plus the movies
@@ -32,18 +31,15 @@ that answer the real requests described below. Each line is one movie with its p
 ```
 
 The overviews are short (about 45 words is typical) and were written by TMDB's volunteer
-contributors. You'll search them two ways:
+contributors. You'll search them using two retrieval techniques:
 
 * *TF-IDF* (term frequency, inverse document frequency) is keyword search. It gives each word
   in an overview a weight. A word weighs a lot when it appears in this overview and in few
   others: "Punxsutawney" appears in one overview, so it weighs a lot there, while "the" appears
-  in nearly all of them and weighs almost nothing. A search weighs your question's words the
-  same way and ranks the movies whose overviews share the most heavily weighted words with it.
+  in nearly all of them and weighs almost nothing. 
 * *Embedding search* turns your question and every overview into a list of numbers with a small
   language model (all-MiniLM-L6-v2), then ranks the movies whose numbers are closest to your
-  question's. It's the same idea as the GloVe word vectors from October 1, applied to whole
-  sentences instead of single words. The model runs through fastembed, a small open-source
-  Python package.
+  question's. The model runs through fastembed, a small open-source Python package.
 
 The question bank, `data/questions.jsonl`, pairs each question with the one movie it's looking
 for. It has two parts:
@@ -60,12 +56,12 @@ for. It has two parts:
 
 ## How this activity works
 
-1. Claude runs every command and explains anything you ask about: TF-IDF, embeddings, the code,
-   the scores. Ask as often as you like.
+1. You will run Claude. It runs every command and explains anything you ask about: TF-IDF, embeddings, the code,
+   the scores.
 2. You make the choices and the judgments: your predictions, the TF-IDF settings, your search
    questions, which answers to look at, and what the results mean.
 3. Claude asks you one question at a time. Answer in a sentence or two, and Claude writes your
-   answer into `WRITEUP.md` as you said it. You don't need to edit any file yourself.
+   answer into `WRITEUP.md`. You don't need to edit any file yourself.
 4. Claude commits and pushes at the end of each part, so your work is saved on GitHub as you go.
 5. In Parts 4 and 5 a comparison site opens in your browser. Keep it next to the terminal.
 
@@ -79,7 +75,7 @@ session is missed.
 
 ## The task
 
-Six short parts. In class most of you will get through Part 3 or 4; Part 5 is fine to do at
+You will complete six short parts. In class most of you will get through Part 3 or 4; Part 5 is fine to do at
 home. The minutes are a guide.
 
 ### Part 0. Setup and predictions · about 10 minutes (5 if you did Step 1 before class)
@@ -93,14 +89,14 @@ If you can, do this step before class, so class time starts with the predictions
 * Type `/setup`.
 * Claude starts installing the packages and downloading the embedding model in the background.
   It downloads about 160 MB (the model is about 90 MB of it), so it can take a few minutes when
-  the whole class downloads at once. You carry on meanwhile.
+  the whole class downloads at once. You can carry on meanwhile.
 
 #### Step 2: Make your predictions
 
 * Claude asks your name, then two predictions: which method will do better on questions that
   name a character, a place or a thing, and which on vague descriptions, and why. A guess is
-  fine. Claude commits them before any search runs; that is what makes them predictions.
-
+  fine.
+  
 ### Part 1. Build the TF-IDF model · about 6 minutes
 
 * `tfidf_settings.py` holds three settings that decide how TF-IDF weighs words. Claude explains
@@ -132,9 +128,8 @@ If you can, do this step before class, so class time starts with the predictions
 
 ### Part 3. Your own searches · about 7 minutes
 
-* Ask **three** questions of your own, for example about a movie you know, described without its
-  title. Try more than one kind: a detail, the plot retold, something vague. If you're finishing
-  at home, you're welcome to ask more.
+* Ask **three** questions about a movie you know without using its
+  title. Try more than one kind of question.
 * Claude runs `uv run python search.py "<your question>"` for each. It prints the top 10 movies
   by TF-IDF. Here are the first lines for one question, with the starting settings:
 
@@ -147,10 +142,8 @@ If you can, do this step before class, so class time starts with the predictions
      3. 0.188  Reindeer Games (2000)   matched: heist
   ```
 
-  The number is the score, the cosine similarity of the question and the plot summary: how
-  closely their lists of word weights point the same way. 1 is the most alike, and 0 means they
-  have no word in common. "matched" lists your words that are also in that movie's summary, the
-  one that adds the most to the score first.
+  The number is the score calculated as the cosine similarity between the question and the plot summary.
+  It measures how closely their lists of word weights point the same way, ranging from 0 (very different) to 1.0 (totally the same).
 * Did the movies you meant come up? What did TF-IDF get right and wrong?
 
 ### Part 4. The question bank · about 9 minutes
@@ -188,13 +181,13 @@ If you can, do this step before class, so class time starts with the predictions
 * Claude starts `uv run python evaluate.py --method embed`, which runs the question bank with
   embeddings. While it runs, Claude explains what a sentence embedding is. Say it back in a
   sentence or two of your own.
-* When it finishes, Claude shows its scores. Reload the site: it now shows both methods, and its
+* When it finishes, Claude shows its scores. Reload http://localhost:8765. It now shows both methods, and its
   Show menu has three new choices, "TF-IDF did better", "Embeddings did better" and "Both
   missed", each with its count. Where does each one do better, and why? If you'd like, Claude
   reruns your Part 3 questions with both methods. For embeddings the score is the same cosine
   similarity, of the model's lists of numbers: 1 is the most alike, and 0 means the two point in
   unrelated directions.
-* Claude shows your Part 0 predictions as you wrote them. Which held, and which would you change?
+* Claude shows your Part 0 predictions as you wrote them. Which were correct and incorrect?
 * How might you combine the two methods? We'll pick this up on Thursday.
 
 ## What to submit
