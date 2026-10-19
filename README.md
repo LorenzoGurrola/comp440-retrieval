@@ -1,8 +1,5 @@
 # COMP 440: Representing and Retrieving Knowledge
 
-> **Draft, Oct 19.** Not ready for students yet. The scripts and data are built and are being
-> reviewed and tested.
-
 **Fall 2026 · In class, Tuesday, October 20 · Individual · graded for good faith**
 **Finish in class if you can. Anything unfinished is due 8:00am Thursday, October 22.**
 
