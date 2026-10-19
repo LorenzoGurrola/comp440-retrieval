@@ -3,10 +3,10 @@
 > **Draft, Oct 19.** Not ready for students yet. The scripts and data are still being built,
 > and everything marked `[TBD]` is open.
 
-**Fall 2026 · In class, Tuesday, October 20 · [TBD: individual or pairs] · graded for good faith**
-**Due by the end of class, 2:50pm Central**
+**Fall 2026 · In class, Tuesday, October 20 · Individual · graded for good faith**
+**Due by the end of class. Anything unfinished is due 8:00am Thursday, October 22.**
 
-This activity is graded for good faith: do Parts 0 to 3 and write your answers in your own words.
+This activity is graded for good faith: do Parts 0 to 5 and give your answers in your own words.
 There are no right answers here. A method that does badly on your movies is a result, not a
 mistake. Questions go to `#comp440-f26`.
 
@@ -14,143 +14,171 @@ mistake. Questions go to `#comp440-f26`.
 
 ## Goals
 
-* To see how keyword search (TF-IDF and BM25) and embedding search rank the same movies for the
-  same request, and why they differ.
-* To measure both methods on descriptions you write of movies you know.
-* To pool the class's results and find which kinds of requests each method handles well.
-  Thursday's class picks up from there with hybrid retrieval, which combines the two.
+* To see how keyword search (TF-IDF) and embedding search each represent a movie, and how each
+  decides which movies match a question.
+* To compare the two methods by reading their answers to questions you write, and by scoring
+  them on a bank of about 550 questions.
+* To find which kinds of questions each method handles well, and why. Thursday's class picks up
+  from there with hybrid retrieval, which combines the two.
 
 ## Overview
 
 On October 1 we scored the words in Wikipedia articles with TF-IDF and looked at GloVe word
-embeddings. Today you'll use both ideas to search.
+embeddings. Today you'll use both ideas to search for movies.
 
-The collection is the movies from HW1 that have a plot summary on The Movie Database (TMDB):
-3,988 of the 4,000. Each movie is one line of `data/movies.jsonl`:
+The collection, `data/movies.jsonl`, is about 4,350 movies: the movies from HW1, plus the movies
+that answer the real requests described below. Each line is one movie with its plot summary (its
+"overview") from The Movie Database (TMDB):
 
 ```json
-{"movieId": 1265, "title": "Groundhog Day (1993)", "genres": "Comedy, Fantasy, Romance", "n_ratings": 7297, "overview": "A narcissistic TV weatherman, along with his attractive-but-distant producer, and his mawkish cameraman, is sent to report on Groundhog Day in the small town of Punxsutawney, where he finds himself repeating the same day over and over."}
+[TBD: one line of data/movies.jsonl]
 ```
 
-`movieId` is the same id you used in HW1, and `overview` is the text both methods search. The
-overviews are short (about 45 words is typical) and were written by TMDB's volunteer
-contributors.
+The overviews are short (about 45 words is typical) and were written by TMDB's volunteer
+contributors. You'll search them two ways:
 
-You'll search the overviews two ways:
+* *TF-IDF* (term frequency, inverse document frequency) is keyword search. It gives each word
+  in an overview a weight. A word weighs a lot when it appears in this overview and in few
+  others: "Punxsutawney" appears in one overview, so it weighs a lot there, while "the" appears
+  in nearly all of them and weighs almost nothing. A search weighs your question's words the
+  same way and ranks the movies whose overviews share the most heavily weighted words with it.
+* *Embedding search* turns your question and every overview into a list of numbers with a small
+  language model ([TBD: model name]), then ranks the movies whose numbers are closest to your
+  question's. It's the same idea as the GloVe word vectors from October 1, applied to whole
+  sentences instead of single words.
 
-* *Keyword search* scores a movie by the words its overview shares with your request. We'll use
-  BM25, the version most search engines start from. It is TF-IDF with two changes: a word that
-  appears ten times doesn't count ten times as much as one that appears once, and a long
-  overview doesn't win just for being long.
-* *Embedding search* turns your request and every overview into a list of 384 numbers with a
-  small language model (`all-MiniLM-L6-v2`), then ranks the movies whose numbers are closest to
-  yours. It is the same idea as the GloVe neighbors from October 1, applied to whole sentences
-  instead of single words.
+The question bank, `data/questions.jsonl`, pairs each question with the one movie it's looking
+for. It has two parts:
 
-## Working together and AI
+* About 100 written questions [TBD: who wrote them], in three kinds. For *Groundhog Day*:
+  * "detail" names a character, a place or a specific thing: "the weatherman in Punxsutawney";
+  * "reworded" tells the plot in other words: "a self-centered TV forecaster wakes up every
+    morning to find it's still February 2nd";
+  * "vague" is how you'd describe it to a friend: "a funny movie where a guy keeps reliving the
+    same day".
+* 450 real requests from people trying to name a movie they half remember, collected for the
+  2023 Tip-of-the-Tongue track of TREC (the Text REtrieval Conference). They are usually several
+  sentences long.
 
-[TBD: individual or pairs.] The class's
-[AI agreements](https://docs.google.com/document/d/1JhAzzTbECGEE5IdOwabVJUh36YZ5DD6ozG_cvodqc9s/edit)
-apply. You are welcome to have Claude run the commands for you and explain the code. Please write
-the requests and the answers in `WRITEUP.md` yourself, though. In Part 2 the class is measuring
-how people describe movies, and descriptions written by Claude would measure Claude instead.
+## How this activity works
+
+1. Claude runs every command and explains anything you ask about: TF-IDF, embeddings, the code,
+   the scores. Ask as often as you like.
+2. You make the choices and the judgments: your predictions, the TF-IDF settings, your search
+   questions, which answers to look at, and what the results mean.
+3. Claude asks you one question at a time. Answer in a sentence or two, and Claude writes your
+   answer into `WRITEUP.md` as you said it. You don't need to edit any file yourself.
+4. Claude commits and pushes at the end of each part, so your work is saved on GitHub as you go.
+5. In Parts 4 and 5 a comparison site opens in your browser. Keep it next to the terminal.
+
+**When Shilad says class is ending, type `/save`.** Claude commits and pushes what you have and
+tells you where you stopped. To go on later, open a terminal in this folder and start `claude`;
+it finds where you left off.
+
+Claude records a transcript of your sessions in `TRANSCRIPT.md` to share with Shilad. Work in
+this repository's folder, since sessions anywhere else aren't recorded.
 
 ## The task
 
-Parts 0 to 3, about 50 minutes together [TBD: confirm against the class plan]. The minutes are a
-guide.
+Six short parts, about 50 minutes in all. The minutes are a guide.
 
 ### Part 0. Setup and predictions · about 5 minutes
 
-#### Step 1: Get the repository
+* Fork this repo, clone your fork, start `claude` in its folder, and type `/setup`.
+* Claude starts installing the packages and downloading the embedding model in the background.
+  [TBD: how long this takes on a laptop.]
+* Claude asks your name, then two predictions: which method will do better on questions that
+  name a character, a place or a thing, and which on vague descriptions, and why. A guess is
+  fine. Claude commits them before any search runs; that is what makes them predictions.
 
-* Fork this repo and clone your fork.
-* Run `uv sync` to install the packages. [TBD: setup command]
-* Run `uv run python search.py --setup`. It downloads the embedding model (about 90 MB) and
-  loads the collection. [TBD: how long this takes on a laptop.] Start it now and do Step 2
-  while it runs.
+### Part 1. Build the TF-IDF model · about 8 minutes
 
-#### Step 2: Predict
+* `tfidf_settings.py` holds the settings that decide how TF-IDF weighs words. [TBD: the
+  settings, in a line.]
+* Claude explains each setting, one at a time. You choose each one and say why. There is no
+  best answer; I'm interested in your reasons.
 
-In `WRITEUP.md`, answer each in a line:
+### Part 2. Top terms · about 7 minutes
 
-* For a request that names a character, like "Hannibal Lecter", which method do you expect to do
-  better? Why?
-* For a vague description, like "a sad movie about a dog", which one? Why?
+* Pick **two or three** movies you know well. Nearly all of HW1's movies are in the collection.
+* Claude runs `uv run python top_terms.py "<title>"` for each. It prints the words with the
+  highest weight in that movie's overview. [TBD: expected output]
+* What do the top terms get right and wrong about what makes each movie distinctive?
 
-### Part 1. One request, two rankings · about 10 minutes
+### Part 3. Your own searches · about 8 minutes
 
-#### Step 1: Run the starter requests
+* Ask **at least three** questions of your own, for example about a movie you know, described
+  without its title. Try more than one kind: a detail, the plot retold, something vague.
+* Claude runs `uv run python search.py "<your question>"` for each. It prints the top movies by
+  TF-IDF. [TBD: expected output]
+* Did the movie you meant come up? What did TF-IDF get right and wrong?
 
-* `uv run python search.py "Hannibal Lecter"`
-* `uv run python search.py "a sad movie about a dog"`
-* `uv run python search.py "a guy keeps reliving the same day"`
+### Part 4. The question bank · about 10 minutes
 
-Each prints the top 10 movies from each method side by side. [TBD: expected output, from the
-activity's code.]
+* Claude runs `uv run python evaluate.py --method tfidf`. It runs every question in the bank and
+  says how often the right movie came out near the top: overall, for each kind, and for the
+  written against the real questions. [TBD: expected output]
+* Read the scores out in your own words.
+* Claude opens the comparison site at http://localhost:8440. [TBD: what the site shows, in one
+  line.] Look through some answers, especially the misses: questions where the right movie
+  wasn't near the top.
+* What do the misses you looked at have in common?
 
-* What does each method get right and wrong?
-* Pick a keyword result that seems wrong. Which words in the request did it match? [TBD: an
-  `--explain` option that prints the words that scored.]
+### Part 5. Embeddings · about 12 minutes
 
-#### Step 2: Try your own requests
-
-* Try **at least three** requests of your own: a name, a vague description, and anything else
-  you are curious about.
-* Do the results match your predictions from Part 0? What surprised you?
-
-### Part 2. Describe movies you know · about 20 minutes
-
-A search works when it finds the thing you meant. Because you know which movie you meant, you
-can measure this: the *rank* of that movie in each method's list. Rank 1 is perfect.
-
-#### Step 1: Pick your movies
-
-* Pick **at least three** movies you know well. The ten you chose in HW1 are a good place to
-  start.
-* Check that each is in the collection: `uv run python find.py --title "groundhog"` prints
-  matching titles and their ids.
-
-#### Step 2: Describe each movie twice
-
-Without using its title, write two requests for each movie in `WRITEUP.md`:
-
-* A "detail" request: the most specific thing you remember, like a character, a place or an
-  object ("the weatherman in Punxsutawney").
-* A "vague" request: how you'd describe it to a friend who hasn't seen it ("a guy keeps
-  reliving the same day").
-
-#### Step 3: Find where your movie lands
-
-* `uv run python find.py "the weatherman in Punxsutawney" --target 1265` prints the movie's rank
-  under each method, or "not in the top 100".
-* Record each rank in the table in `WRITEUP.md`.
-* Add your rows to the class sheet. [TBD: link to the class sheet.]
-* Which method found your movies more often? Was there a pattern in how you worded the requests
-  each one won?
-
-### Part 3. The class's results · about 10 minutes
-
-[TBD: Shilad leads a short discussion of the class sheet.]
-
-Then answer two questions in `WRITEUP.md`:
-
-* The overviews were written by TMDB volunteers, and the words they chose decide what keyword
-  search can find. Find one of your requests where the overview's wording, more than the method,
-  decided the result.
-* If you were building search for this collection, would you use one method or both? If both,
-  how would you combine their two lists? We'll pick this up on Thursday.
+* Claude explains what a sentence embedding is. Say it back in a sentence or two of your own.
+* Claude runs `uv run python evaluate.py --method embed`. Read its scores next to TF-IDF's.
+* Reload the site: it now shows both methods. Where does each one win, and why? If you'd like,
+  Claude reruns your Part 3 questions with both methods.
+* Claude shows your Part 0 predictions as you wrote them. Which held, and which would you change?
+* How might you combine the two methods? We'll pick this up on Thursday.
 
 ## What to submit
 
-Your repository, with `WRITEUP.md` filled in: your predictions, your Part 1 notes, the Part 2
-table, and your Part 3 answers. Share its URL through the
-[Work Submission Form](https://forms.gle/mgKcnqzTGxNaGvteA) by the end of class.
+Your repository, pushed, with `WRITEUP.md` filled in and both question-bank runs in `results/`.
 
-## Follow-ups (optional, not graded)
+* When Part 5 is done, Claude runs `/checkpoint`. It lists anything still missing, then commits
+  and pushes.
+* Submit the [Work Submission Form](https://forms.gle/mgKcnqzTGxNaGvteA), choose "activity", and
+  paste your repository's GitHub URL. Tell Claude when you have, and it will tell you you're
+  finished.
+* If you don't finish in class, finish by **8:00am Thursday, October 22**, and submit the form
+  then. You only submit it once.
 
-[TBD: for example, real requests from people trying to name a movie they half remember, where
-keyword search does better; or writing your own scoring function, as on October 1.]
+## AI guidelines
+
+The class's
+[AI agreements](https://docs.google.com/document/d/1JhAzzTbECGEE5IdOwabVJUh36YZ5DD6ozG_cvodqc9s/edit)
+apply. In this activity Claude runs the code and explains it. Your predictions, settings,
+reasons and answers are yours, and Claude writes them down as you said them. Your Part 3
+questions must be your own words: a question Claude wrote would show how Claude describes movies,
+not how you do.
+
+## Rubric
+
+Graded for good faith. A part is complete when its command has run and its slots in `WRITEUP.md`
+hold your own words. I don't grade whether a prediction came true or whether your reading
+matches mine. `uv run python run_all.py` lists what is still missing.
+
+| Part | Complete when |
+|---|---|
+| 0. Setup and predictions | Your two predictions, committed before any search ran |
+| 1. Build the TF-IDF model | Each setting chosen, with your reason |
+| 2. Top terms | What TF-IDF gets right and wrong about two or three movies you know |
+| 3. Your own searches | At least three questions of your own, and what TF-IDF got right and wrong |
+| 4. The question bank | `results/tfidf.json`, the scores in your words, and what the misses have in common |
+| 5. Embeddings | `results/embed.json`, an embedding in your words, the scores, where each method wins, your predictions revisited, and an idea for combining the two |
+
+## Talk to me if...
+
+**You'd rather not use Claude.** Talk to me; there is no grade effect.
+
+**Claude, or something else, is down.** A reported problem never costs you points. Post in
+`#comp440-f26`.
+
+**Claude won't make your predictions, choose your settings, write your questions or say what a
+result shows.** That's working as intended: those are the activity. It will explain anything,
+as often as you ask.
 
 ## FAQ
 
@@ -158,11 +186,13 @@ FAQ: TBA (ask a question on Slack, `#comp440-f26`!)
 
 ## Data
 
-* Movies: the 4,000 most-rated movies in MovieLens 32M, as shipped in HW1. MovieLens is from
-  GroupLens Research at the University of Minnesota (F. Maxwell Harper and Joseph A. Konstan,
-  "The MovieLens Datasets: History and Context", ACM Transactions on Interactive Intelligent
-  Systems, 2015).
+* Movies: the 4,000 most-rated movies in MovieLens 32M, as shipped in HW1, plus the movies that
+  answer the real requests. MovieLens is from GroupLens Research at the University of Minnesota
+  (F. Maxwell Harper and Joseph A. Konstan, "The MovieLens Datasets: History and Context", ACM
+  Transactions on Interactive Intelligent Systems, 2015).
 * Overviews: [The Movie Database (TMDB)](https://www.themoviedb.org), from the copy at
   [ada-datadruids/full_tmdb_movies_dataset](https://huggingface.co/datasets/ada-datadruids/full_tmdb_movies_dataset)
   on Hugging Face. This activity uses TMDB data but is not endorsed or certified by TMDB.
-* Embedding model: [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
+* Real requests: the TREC 2023 Tip-of-the-Tongue track. [TBD: link and licence.]
+* Written questions: [TBD: who wrote them.]
+* Embedding model: [TBD: name and link.]

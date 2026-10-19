@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(uv --version)",
+      "Bash(uv sync)",
+      "Bash(uv run python download_model.py)",
+      "Bash(uv run python top_terms.py:*)",
+      "Bash(uv run python search.py:*)",
+      "Bash(uv run python evaluate.py:*)",
+      "Bash(uv run python site.py:*)",
+      "Bash(uv run python run_all.py:*)",
+      "Bash(python3 dump_transcript.py)",
+      "Edit(WRITEUP.md)",
+      "Edit(tfidf_settings.py)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); case \"$input\" in *commit*|*top_terms.py*|*search.py*|*evaluate.py*|*site.py*) cd \"${CLAUDE_PROJECT_DIR:-.}\" 2>/dev/null; printf '%s' \"$input\" | python3 guard.py; exit $? ;; esac; exit 0",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
