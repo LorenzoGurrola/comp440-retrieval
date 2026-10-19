@@ -6,7 +6,7 @@ This folder holds the data for the activity. You don't need to edit anything her
 |---|---|
 | `movies.jsonl` | The collection: 4,309 movies, one per line, each with its plot summary. |
 | `questions.jsonl` | The question bank: 518 questions, one per line, each with the one movie it is looking for. |
-| `LICENSE-movielens.txt` | The MovieLens licence. It has to travel with any data built from MovieLens. |
+| `LICENSE-movielens.txt` | The MovieLens licence. It must be included with any data built from MovieLens. |
 
 ## movies.jsonl
 
@@ -41,17 +41,17 @@ Each line is one question, in this shape:
 There are two kinds of question, written questions first:
 
 * 100 written questions (ids `w001` to `w100`), in three kinds: "detail", "reworded" and "vague".
-  The activity's README says what each kind means. Claude, an AI model, drafted them from what it
-  knows about the films. Each one was checked to have a single right answer in the collection
-  and for words copied from that movie's summary. They're a draft until I've reviewed them.
+  The activity's README says what each kind means. They were drafted by Claude, from what it
+  knows about the films. Claude checked that each has one right movie in the collection and
+  doesn't copy words from that movie's summary. If one seems wrong, tell me.
 * 418 real requests (`kind` "real", ids starting with `tot-`) from people trying to name a movie
   they half remember. They are as people wrote them, spelling and all; each joins the post's
   title and its text. People posted them on iRememberThisMovie.com between 2013 and 2018, and
   the TREC (Text REtrieval Conference) 2023 Tip-of-the-Tongue track used 450 of them, each
-  with the Wikipedia page of its answer. I matched each answer to TMDB, through its IMDb id
-  where it had one, and checked every uncertain match by hand. 32 of the 450 are left out: 31 because the answer is a
-  TV series or a single TV episode, which TMDB doesn't list as a movie, and one because the
-  answer's TMDB entry has no summary.
+  with the Wikipedia page of its answer. A script matched each answer to TMDB, through its IMDb
+  id where it had one, and every uncertain match was checked by hand. 32 of the 450 are left
+  out: 31 because the answer is a TV series or a single TV episode, which TMDB doesn't list as a
+  movie, and one because the answer's TMDB entry has no summary.
 
 A content note: some real requests describe violence, including violence against children, or
 sexual content, sometimes in detail. So do a few of the added movies' summaries. You're welcome
@@ -81,4 +81,4 @@ to skip any you'd rather not read.
     in their 2025 release at <https://zenodo.org/records/15356599>, which includes the 2023 dev
     requests along with most of the 2023 training and test requests. Neither source says anything
     about the rights of the people who wrote the posts.
-* The written questions were drafted by Claude, an AI model made by Anthropic, as described above.
+* The written questions were drafted by Claude, as described above.
