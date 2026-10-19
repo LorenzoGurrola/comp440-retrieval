@@ -354,9 +354,7 @@ def search_page(params):
                     m = method(key)
                     found[key] = search(m, [query])[0]["top"]
                     if key == "tfidf":
-                        ignored = m.ignored(query)
-                        if ignored:
-                            notes[key] = "Not in TF-IDF's vocabulary, so ignored: " + ", ".join(ignored)
+                        notes[key] = " ".join(m.ignored_lines(query))
                     elif m.cut_off(query):
                         notes[key] = CUT_OFF.format("this one")
             except Problem as e:

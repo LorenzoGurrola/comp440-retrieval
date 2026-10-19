@@ -31,10 +31,8 @@ def show(method, question):
         if len(hits) < TOP:
             shares = "No plot summary shares" if not hits else f"Only {len(hits)} plot summaries share"
             print(f"      {shares} a word with your question.")
-        ignored = method.ignored(question)
-        if ignored:
-            more = f" and {len(ignored) - 15} more" if len(ignored) > 15 else ""
-            print(f"      Not in TF-IDF's vocabulary, so ignored: {', '.join(ignored[:15])}{more}")
+        for line in method.ignored_lines(question, most=15):
+            print(f"      {line}")
     if method.key == "embed":
         print("      Embeddings compare whole sentences, so there are no matched words to list.")
         if method.cut_off(question):

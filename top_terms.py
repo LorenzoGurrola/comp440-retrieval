@@ -79,16 +79,26 @@ def main():
     counts = Counter(tfidf.vectorizer.build_analyzer()(movie["overview"]))
     in_movies = np.bincount(tfidf.matrix.indices, minlength=len(tfidf.words))
 
-    print(f"{movie['title']}: the {len(order)} words with the highest TF-IDF weight in its plot summary.")
-    print()
-    print(f"     {'word':<18}{'weight':>7}{'count here':>12}{'movies':>8}")
-    for n, j in enumerate(order, 1):
-        word = str(tfidf.words[row.indices[j]])
-        print(f"{n:3}. {word:<18}{row.data[j]:7.3f}{counts[word]:12}{in_movies[row.indices[j]]:8,}")
-    print()
-    print(f"count here: how many times the word is in this plot summary. movies: how many of the "
-          f"{len(movies):,} plot summaries have it.")
-    print()
+    shown = len(order)
+    if shown == 0:
+        print(f"{movie['title']}: none of its plot summary's words are in the vocabulary with your "
+              "settings.")
+        print()
+    else:
+        words = "word" if shown == 1 else f"{shown} words"
+        print(f"{movie['title']}: the {words} with the highest TF-IDF weight in its plot summary.")
+        if shown < SHOWN:
+            verb = "is" if shown == 1 else "are"
+            print(f"Only {shown} of this summary's words {verb} in the vocabulary with your settings.")
+        print()
+        print(f"     {'word':<18}{'weight':>7}{'count here':>12}{'movies':>8}")
+        for n, j in enumerate(order, 1):
+            word = str(tfidf.words[row.indices[j]])
+            print(f"{n:3}. {word:<18}{row.data[j]:7.3f}{counts[word]:12}{in_movies[row.indices[j]]:8,}")
+        print()
+        print(f"count here: how many times the word is in this plot summary. movies: how many of the "
+              f"{len(movies):,} plot summaries have it.")
+        print()
     print(f"The plot summary: {movie['overview']}")
     print()
     print(f"Your settings: {describe(settings)}.")

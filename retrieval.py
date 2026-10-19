@@ -125,12 +125,31 @@ class TfidfSearch:
         return [str(self.words[j]) for j in both.indices[order]]
 
     def ignored(self, question):
-        """The question's words that count for nothing because the vocabulary leaves them out:
-        stop words if you remove them, words in fewer than MIN_MOVIES summaries, and words no
-        summary uses. (Single letters, like "a", are never words to TF-IDF.)"""
+        """The question's words that count for nothing because the vocabulary leaves them out, in
+        two lists: (stop words, if you remove them; words in fewer than MIN_MOVIES summaries or
+        in none). Single letters, like "a", are never words to TF-IDF."""
         tokenize = self.vectorizer.build_tokenizer()
         words = tokenize(self.vectorizer.build_preprocessor()(question))
-        return [w for w in dict.fromkeys(words) if w not in self.vectorizer.vocabulary_]
+        stop = self.vectorizer.get_stop_words() or frozenset()
+        left_out = [w for w in dict.fromkeys(words) if w not in self.vectorizer.vocabulary_]
+        return [w for w in left_out if w in stop], [w for w in left_out if w not in stop]
+
+    def ignored_lines(self, question, most=None):
+        """The ignored words as plain sentences, one per reason, or [] if there are none. With
+        `most`, each sentence lists at most that many words, then "and N more"."""
+        def listed(words):
+            more = f" and {len(words) - most} more" if most and len(words) > most else ""
+            return ", ".join(words[:most] if most else words) + more
+
+        stop, rare = self.ignored(question)
+        n = self.settings["MIN_MOVIES"]
+        why = "in no summary" if n == 1 else f"in fewer than {n} summaries, or none"
+        lines = []
+        if stop:
+            lines.append(f"Ignored as stop words: {listed(stop)}.")
+        if rare:
+            lines.append(f"Not in the vocabulary ({why}): {listed(rare)}.")
+        return lines
 
 
 # ---------------------------------------------------------------------------------------------
