@@ -146,13 +146,13 @@ prediction is theirs. Don't hint at which method does better on anything.
 1. Run `uv run python evaluate.py --method tfidf` and paste its output in full. Ask them to read
    the scores out in their own words, for "The TF-IDF scores, as you read them". Write it in and
    give one caveat.
-2. Start the site in the background: `uv run python site.py`. It opens http://localhost:8440 in
-   their browser. Tell them in one line what to look at, using README Part 4's description of
-   the site, and ask them to look through some answers, especially the misses.
-   - If no page opened, give them the address.
-   - If the port is taken and you started the site earlier in this session, ask them to reload
-     the page. Otherwise HW2's evaluation viewer may be using the same port: ask whether it is
-     running in another terminal, and to stop it there with Ctrl-C.
+2. Start the site in the background: `uv run python site.py`. It opens http://localhost:8765 in
+   their browser and prints the address it used. Tell them in one line what to look at, using
+   README Part 4's description of the site, and ask them to look through some answers,
+   especially the misses.
+   - If no page opened, give them the address it printed.
+   - If port 8765 is busy, it takes the next free port and says so: give them that address.
+   - If it says the site is already running, ask them to reload the page.
 3. They pick which answers to look at. Don't point them to examples, and don't summarize what
    the site shows before they answer. If they name a question they are looking at, you may look
    it up and say what the page shows for it.
@@ -224,21 +224,24 @@ submitted the form. Never quote it before then.
 
 ## Assignment context
 
-- `data/movies.jsonl`: the collection, about 4,350 movies, one per line: HW1's movies plus the
+- `data/movies.jsonl`: the collection, 4,309 movies, one per line: HW1's movies plus the
   answers to the real requests, each with its plot summary from TMDB (The Movie Database).
-- `data/questions.jsonl`: the question bank, each question with the one movie it is looking for.
-  About 100 written questions in three kinds ("detail" names a character, place or specific
-  thing; "reworded" tells the plot in other words; "vague" is how you'd describe it to a friend),
-  and 450 "real" requests from people trying to name a half-remembered movie, from the TREC
-  (Text REtrieval Conference) 2023 Tip-of-the-Tongue track.
+- `data/questions.jsonl`: the question bank, 518 questions, each with the one movie it is
+  looking for. 100 written questions in three kinds ("detail" names a character, place or
+  specific thing; "reworded" tells the plot in other words; "vague" is how you'd describe it to
+  a friend), and 418 "real" requests from people trying to name a half-remembered movie, from
+  the TREC (Text REtrieval Conference) 2023 Tip-of-the-Tongue track.
 - `tfidf_settings.py`: the settings the student chooses in Part 1.
-- `download_model.py`: downloads the embedding model. `top_terms.py "<title>"`: the words with
-  the highest TF-IDF weight in one movie's plot summary. `search.py "<question>"
-  [--method tfidf|embed|both]`: the top movies for a question, TF-IDF by default.
-  `evaluate.py --method tfidf|embed`: runs the whole question bank, writes
-  `results/<method>.json` and prints the scores in plain sentences, overall, for each kind, and
-  for the written against the real questions. `site.py [--no-open]`: the comparison site at
-  http://localhost:8440; it shows only the methods that have results.
+- `download_model.py`: downloads the embedding model, all-MiniLM-L6-v2, into `.model/` and
+  checks it against the shipped plot-summary vectors in `data/embeddings.npz`. The fastembed
+  package runs the model. `top_terms.py "<title>"`: the words with the highest TF-IDF weight in
+  one movie's plot summary; all or part of a title works, and several matches are listed.
+  `search.py "<question>" [--method tfidf|embed|both]`: the top 10 movies for a question,
+  TF-IDF by default. `evaluate.py --method tfidf|embed`: runs the whole question bank, writes
+  `results/<method>.json` and prints the scores in plain sentences, for the written questions,
+  each kind of them, and the real requests. `site.py [--no-open] [--port N]`: the comparison
+  site at http://localhost:8765, or the next free port; it shows only the methods that have
+  results.
 - `run_all.py`: checks that the commands run and lists what is missing. `guard.py`: the hook's
   check before a command runs. `dump_transcript.py`: writes `TRANSCRIPT.md`. These three use only
   Python's standard library: `run_all.py` runs with `uv run python`, the other two with

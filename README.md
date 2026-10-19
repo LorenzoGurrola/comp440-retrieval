@@ -1,7 +1,7 @@
 # COMP 440: Representing and Retrieving Knowledge
 
-> **Draft, Oct 19.** Not ready for students yet. The scripts and data are still being built,
-> and everything marked `[TBD]` is open.
+> **Draft, Oct 19.** Not ready for students yet. The scripts and data are built and are being
+> reviewed and tested.
 
 **Fall 2026 · In class, Tuesday, October 20 · Individual · graded for good faith**
 **Due by the end of class. Anything unfinished is due 8:00am Thursday, October 22.**
@@ -17,7 +17,7 @@ mistake. Questions go to `#comp440-f26`.
 * To see how keyword search (TF-IDF) and embedding search each represent a movie, and how each
   decides which movies match a question.
 * To compare the two methods by reading their answers to questions you write, and by scoring
-  them on a bank of about 550 questions.
+  them on a bank of 518 questions.
 * To find which kinds of questions each method handles well, and why. Thursday's class picks up
   from there with hybrid retrieval, which combines the two.
 
@@ -26,12 +26,12 @@ mistake. Questions go to `#comp440-f26`.
 On October 1 we scored the words in Wikipedia articles with TF-IDF and looked at GloVe word
 embeddings. Today you'll use both ideas to search for movies.
 
-The collection, `data/movies.jsonl`, is about 4,350 movies: the movies from HW1, plus the movies
+The collection, `data/movies.jsonl`, is 4,309 movies: the movies from HW1, plus the movies
 that answer the real requests described below. Each line is one movie with its plot summary (its
 "overview") from The Movie Database (TMDB):
 
 ```json
-[TBD: one line of data/movies.jsonl]
+{"id": 137, "movieId": 1265, "title": "Groundhog Day (1993)", "year": 1993, "genres": "Comedy, Fantasy, Romance", "overview": "A narcissistic TV weatherman, along with his attractive-but-distant producer, and his mawkish cameraman, is sent to report on Groundhog Day in the small town of Punxsutawney, where he finds himself repeating the same day over and over."}
 ```
 
 The overviews are short (about 45 words is typical) and were written by TMDB's volunteer
@@ -43,21 +43,22 @@ contributors. You'll search them two ways:
   in nearly all of them and weighs almost nothing. A search weighs your question's words the
   same way and ranks the movies whose overviews share the most heavily weighted words with it.
 * *Embedding search* turns your question and every overview into a list of numbers with a small
-  language model ([TBD: model name]), then ranks the movies whose numbers are closest to your
+  language model (all-MiniLM-L6-v2), then ranks the movies whose numbers are closest to your
   question's. It's the same idea as the GloVe word vectors from October 1, applied to whole
-  sentences instead of single words.
+  sentences instead of single words. The model runs with fastembed, a small open-source Python
+  package that turns text into embeddings without needing PyTorch.
 
 The question bank, `data/questions.jsonl`, pairs each question with the one movie it's looking
 for. It has two parts:
 
-* About 100 written questions [TBD: who wrote them], in three kinds. For *Groundhog Day*:
+* 100 written questions, drafted by Claude (an AI model), in three kinds. For *Groundhog Day*:
   * "detail" names a character, a place or a specific thing: "the weatherman in Punxsutawney";
   * "reworded" tells the plot in other words: "a self-centered TV forecaster wakes up every
     morning to find it's still February 2nd";
   * "vague" is how you'd describe it to a friend: "a funny movie where a guy keeps reliving the
     same day".
-* 450 real requests from people trying to name a movie they half remember, collected for the
-  2023 Tip-of-the-Tongue track of TREC (the Text REtrieval Conference). They are usually several
+* 418 real requests from people trying to name a movie they half remember, used in the 2023
+  Tip-of-the-Tongue track of TREC (the Text REtrieval Conference). They are usually several
   sentences long.
 
 ## How this activity works
@@ -86,15 +87,17 @@ Six short parts, about 50 minutes in all. The minutes are a guide.
 
 * Fork this repo, clone your fork, start `claude` in its folder, and type `/setup`.
 * Claude starts installing the packages and downloading the embedding model in the background.
-  [TBD: how long this takes on a laptop.]
+  It downloads about 160 MB (the model is about 90 MB of it), so it can take a few minutes when
+  the whole class downloads at once. You carry on meanwhile.
 * Claude asks your name, then two predictions: which method will do better on questions that
   name a character, a place or a thing, and which on vague descriptions, and why. A guess is
   fine. Claude commits them before any search runs; that is what makes them predictions.
 
 ### Part 1. Build the TF-IDF model · about 8 minutes
 
-* `tfidf_settings.py` holds the settings that decide how TF-IDF weighs words. [TBD: the
-  settings, in a line.]
+* `tfidf_settings.py` holds the four settings that decide how TF-IDF weighs words: whether "Dog"
+  and "dog" are one word, whether to leave out common words like "the", how many plot summaries
+  a word must be in to count, and whether a word repeated in one summary counts less.
 * Claude explains each setting, one at a time. You choose each one and say why. There is no
   best answer; I'm interested in your reasons.
 
@@ -102,26 +105,70 @@ Six short parts, about 50 minutes in all. The minutes are a guide.
 
 * Pick **two or three** movies you know well. Nearly all of HW1's movies are in the collection.
 * Claude runs `uv run python top_terms.py "<title>"` for each. It prints the words with the
-  highest weight in that movie's overview. [TBD: expected output]
+  highest weight in that movie's overview. Here are the first lines for *Groundhog Day*, with
+  the starting settings:
+
+  ```
+  Groundhog Day (1993): the 15 words with the highest TF-IDF weight in its plot summary.
+
+       word               weight  count here  movies
+    1. mawkish             0.267           1       1
+    2. groundhog           0.267           1       1
+    3. punxsutawney        0.267           1       1
+    4. day                 0.263           2     162
+    5. weatherman          0.255           1       2
+  ```
+
+  It goes on to 15 words, says what each column means, and prints the plot summary and your
+  settings.
 * What do the top terms get right and wrong about what makes each movie distinctive?
 
 ### Part 3. Your own searches · about 8 minutes
 
 * Ask **at least three** questions of your own, for example about a movie you know, described
   without its title. Try more than one kind: a detail, the plot retold, something vague.
-* Claude runs `uv run python search.py "<your question>"` for each. It prints the top movies by
-  TF-IDF. [TBD: expected output]
+* Claude runs `uv run python search.py "<your question>"` for each. It prints the top 10 movies
+  by TF-IDF. Here are the first lines for one question, with the starting settings:
+
+  ```
+  Question: a heist on a train
+
+  TF-IDF, top 10:
+     1. 0.209  Dog Day Afternoon (1975)   matched: heist, on
+     2. 0.196  Baby Driver (2017)   matched: heist
+     3. 0.188  Reindeer Games (2000)   matched: heist
+  ```
+
+  The number is the score, the cosine similarity of the question and the plot summary: 1 is the
+  most alike, and 0 means no word in common. "matched" lists your words that are also in that
+  movie's summary, the one that adds the most to the score first.
 * Did the movie you meant come up? What did TF-IDF get right and wrong?
 
 ### Part 4. The question bank · about 10 minutes
 
 * Claude runs `uv run python evaluate.py --method tfidf`. It runs every question in the bank and
-  says how often the right movie came out near the top: overall, for each kind, and for the
-  written against the real questions. [TBD: expected output]
+  says how often the right movie came out near the top: for the written questions, for each
+  kind of them, and for the real requests. Its output looks like this, with numbers in the
+  blanks. They depend on your settings, so I've left them out here:
+
+  ```
+  TF-IDF, with your settings: LOWERCASE = True, REMOVE_STOP_WORDS = False, MIN_MOVIES = 1, REPEATS_COUNT_LESS = False.
+  Ran 518 questions against 4,309 movies in 2 seconds.
+
+  TF-IDF put the right movie first for __ of 100 written questions and in the top 10 for __.
+    Of the 34 detail questions, it put __ first and __ in the top 10.
+    Of the 33 reworded questions, it put __ first and __ in the top 10.
+    Of the 33 vague questions, it put __ first and __ in the top 10.
+  It put the right movie first for __ of 418 real requests and in the top 10 for __.
+
+  Saved every question's top 10 in results/tfidf.json. To look through them: uv run python site.py
+  ```
+
 * Read the scores out in your own words.
-* Claude opens the comparison site at http://localhost:8440. [TBD: what the site shows, in one
-  line.] Look through some answers, especially the misses: questions where the right movie
-  wasn't near the top.
+* Claude opens the comparison site at http://localhost:8765. It shows one question at a time:
+  the right movie, where TF-IDF ranked it, and TF-IDF's top 10 with the words each one shares
+  with the question. Look through some answers, especially the misses: questions where the right
+  movie wasn't near the top. The Show menu can list only the misses.
 * What do the misses you looked at have in common?
 
 ### Part 5. Embeddings · about 12 minutes
@@ -186,13 +233,25 @@ FAQ: TBA (ask a question on Slack, `#comp440-f26`!)
 
 ## Data
 
-* Movies: the 4,000 most-rated movies in MovieLens 32M, as shipped in HW1, plus the movies that
-  answer the real requests. MovieLens is from GroupLens Research at the University of Minnesota
-  (F. Maxwell Harper and Joseph A. Konstan, "The MovieLens Datasets: History and Context", ACM
-  Transactions on Interactive Intelligent Systems, 2015).
+* Movies: the 3,988 of HW1's 4,000 most-rated movies in MovieLens 32M that have a plot summary,
+  plus 321 movies that answer the real requests. MovieLens is from GroupLens Research at the
+  University of Minnesota (F. Maxwell Harper and Joseph A. Konstan, "The MovieLens Datasets:
+  History and Context", ACM Transactions on Interactive Intelligent Systems, 2015). Its licence
+  is in `data/LICENSE-movielens.txt`.
 * Overviews: [The Movie Database (TMDB)](https://www.themoviedb.org), from the copy at
   [ada-datadruids/full_tmdb_movies_dataset](https://huggingface.co/datasets/ada-datadruids/full_tmdb_movies_dataset)
   on Hugging Face. This activity uses TMDB data but is not endorsed or certified by TMDB.
-* Real requests: the TREC 2023 Tip-of-the-Tongue track. [TBD: link and licence.]
-* Written questions: [TBD: who wrote them.]
-* Embedding model: [TBD: name and link.]
+* Real requests: the [TREC 2023 Tip-of-the-Tongue track](https://trec-tot.github.io/guidelines-2023),
+  which took them from Microsoft's MS-TOT dataset (Jaime Arguello, Adam Ferguson, Emery Fine,
+  Bhaskar Mitra, Hamed Zamani and Fernando Diaz, "Tip of the Tongue Known-Item Retrieval: A Case
+  Study in Movie Identification", CHIIR 2021). All 418 are in the
+  [MS-TOT repository](https://github.com/microsoft/Tip-of-the-Tongue-Known-Item-Retrieval-Dataset-for-Movie-Identification),
+  under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), and 399 of them are in
+  the track organisers' [2025 release](https://zenodo.org/records/15356599), under
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). `data/README.md` has the details.
+* Written questions: drafted by Claude, an AI model made by Anthropic. Each was checked to have
+  a single right answer in the collection and for words copied from that movie's summary.
+  They're a draft until I've reviewed them.
+* Embedding model: [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+  (Apache 2.0 licence), in the copy that [fastembed](https://github.com/qdrant/fastembed)
+  downloads, [Qdrant/all-MiniLM-L6-v2-onnx](https://huggingface.co/Qdrant/all-MiniLM-L6-v2-onnx).
