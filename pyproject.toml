@@ -1,0 +1,28 @@
+[project]
+name = "comp440-retrieval"
+version = "0.1.0"
+description = "COMP 440 activity: keyword search (TF-IDF) and embedding search on movie plot summaries"
+# Python 3.13 only, because onnxruntime 1.23 (below) has no wheels for 3.14. uv downloads 3.13
+# if the laptop doesn't have it.
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    # Runs the all-MiniLM-L6-v2 embedding model with ONNX Runtime, without PyTorch.
+    "fastembed>=0.9",
+    # ONNX Runtime 1.23 is the last version with wheels for Intel Macs and for macOS 13. From
+    # 1.24 on, macOS needs an Apple Silicon Mac with macOS 14 or newer. After changing this
+    # version, rebuild data/embeddings.npz with build_embeddings.py.
+    "onnxruntime>=1.23.2,<1.24",
+    "numpy>=2.2",
+    "scikit-learn>=1.6",
+]
+
+[tool.uv]
+# `uv lock` checks that every package has a ready-built wheel for each of these laptops, so
+# that no student's install has to compile anything.
+required-environments = [
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "sys_platform == 'darwin' and platform_machine == 'x86_64'",
+    "sys_platform == 'win32' and platform_machine == 'AMD64'",
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "sys_platform == 'linux' and platform_machine == 'aarch64'",
+]

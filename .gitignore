@@ -2,6 +2,8 @@
 .venv/
 __pycache__/
 *.pyc
+# The embedding model, downloaded by download_model.py (results/ is handed in, so it is not here)
+.model/
 # Personal permission allowlist
 .claude/settings.local.json
 # macOS
