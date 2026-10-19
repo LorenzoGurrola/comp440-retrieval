@@ -254,6 +254,13 @@ def rank_words(rank):
     return ordinal(rank) if rank else f"not in the top {DEPTH}"
 
 
+def rank_sentence(key, rank):
+    """'TF-IDF ranked it 3rd.' or 'Embeddings didn't rank it in the top 100.'"""
+    if rank:
+        return f"{NAMES[key]} ranked it {ordinal(rank)}."
+    return f"{NAMES[key]} didn't rank it in the top {DEPTH}."
+
+
 # What evaluate.py, search.py and site.py say when a question is longer than the model reads.
 CUT_OFF = ("The embedding model reads only about the first 200 words of a question, so it "
            "ignored the end of {}.")

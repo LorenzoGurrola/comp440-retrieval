@@ -25,13 +25,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from retrieval import (CUT_OFF, DEPTH, KINDS, NAMES, REPO, TOP, EmbedSearch, Problem,
-                       TfidfSearch, counts, load_movies, rank_words, read_results, search,
+                       TfidfSearch, counts, load_movies, rank_sentence, read_results, search,
                        tfidf_settings)
 
 PORT = 8765
 STYLE = REPO / "site" / "style.css"
 SHORT = 60     # a longer question shows its first SHORT words, and the rest behind "Show the rest"
-MATCHED = 8    # a "Matched" list shows this many words, then "and N more"
+MATCHED = 8    # a "Shared words" list shows this many words, then "and N more"
+LIST_HEADS = {"tfidf": f"TF-IDF's top {TOP}", "embed": f"Embeddings' top {TOP}"}
 ROWS = [("Detail", "detail"), ("Reworded", "reworded"), ("Vague", "vague"), ("Real requests", "real")]
 PING = f"comp440-retrieval site in {REPO}"  # names the folder, so another folder's site is not taken as ours
 
@@ -83,17 +84,17 @@ def choices(methods):
     ]
     if len(methods) == 1:
         key, name = methods[0], NAMES[methods[0]]
-        found.append((f"{key}_missed", f"{name} missed", f"Questions where the right movie is not "
-                      f"in {name}'s top {TOP}.", lambda q, runs: not in_top(runs[key])))
+        found.append((f"{key}_missed", f"{name} missed", f"{name} didn't rank the right movie "
+                      f"in its top {TOP}.", lambda q, runs: not in_top(runs[key])))
     elif len(methods) == 2:
         found += [
-            ("tfidf_better", "TF-IDF did better", f"Questions where TF-IDF put the right movie in "
-             f"its top {TOP}, and higher than embeddings did.",
+            ("tfidf_better", "TF-IDF did better", f"TF-IDF ranked the right movie in its top "
+             f"{TOP}, and higher than embeddings did.",
              lambda q, runs: better(runs, "tfidf", "embed")),
-            ("embed_better", "Embeddings did better", f"Questions where embeddings put the right "
-             f"movie in their top {TOP}, and higher than TF-IDF did.",
+            ("embed_better", "Embeddings did better", f"Embeddings ranked the right movie in their "
+             f"top {TOP}, and higher than TF-IDF did.",
              lambda q, runs: better(runs, "embed", "tfidf")),
-            ("both_missed", "Both missed", f"Questions where neither method put the right movie "
+            ("both_missed", "Both missed", f"Neither method ranked the right movie "
              f"in its top {TOP}.", lambda q, runs: not in_top(runs["tfidf"]) and not in_top(runs["embed"])),
         ]
     return found
@@ -149,9 +150,9 @@ def title(results):
 def score_table(results):
     """For each kind of question, how often each method put the right movie 1st and in its top
     10, as counts out of that kind's questions."""
-    head = ['<th scope="col" rowspan="2">Questions</th>']
+    head = ['<th scope="col" rowspan="2">Kind of question</th>']
     head += [f'<th scope="colgroup" colspan="2">{esc(NAMES[key])}</th>' for key in results]
-    sub = "".join(f'<th scope="col">1st</th><th scope="col">in top {TOP}</th>' for _ in results)
+    sub = "".join(f'<th scope="col">Ranked 1st</th><th scope="col">In top {TOP}</th>' for _ in results)
     rows = []
     for label, kind in ROWS:
         cells = []
@@ -160,7 +161,7 @@ def score_table(results):
             cells += [f"<td>{first} of {n:,}</td>", f"<td>{top} of {n:,}</td>"]
         if n:
             rows.append(f'<tr><th scope="row">{label}</th>{"".join(cells)}</tr>')
-    return f"""<p class="caption" id="scores-caption">How many times each method put the right movie 1st, and how many times in its top {TOP}, for each kind of question.</p>
+    return f"""<p class="caption" id="scores-caption">How often each method ranked the right movie 1st, or anywhere in its top {TOP}:</p>
 <div class="table-wrap"><table class="scores" aria-describedby="scores-caption">
 <thead><tr>{"".join(head)}</tr><tr>{sub}</tr></thead>
 <tbody>
@@ -175,10 +176,8 @@ def top_part(results):
     parts = [f"<h1>{esc(title(results))}</h1>"]
     if not results:
         return parts[0]
-    parts.append(f'<p class="intro">One question from the bank at a time: the movie it was looking '
-                 f"for, where each method put it, and each method's top {TOP}. Each method's list "
-                 f"is checked {DEPTH} movies deep, so a right movie further down shows as "
-                 f'"not in the top {DEPTH}".</p>')
+    parts.append('<p class="intro">Each question in the bank describes one movie. Below, see how '
+                 "well each method found it.</p>")
     parts.append(score_table(results))
     if "tfidf" in results:
         try:
@@ -208,15 +207,16 @@ def columns(found, answer_id=None, notes=None):
     notes = notes or {}
     lists = []
     if "tfidf" in found:
-        lists.append("TF-IDF lists the question's words it found in each summary, the one that adds "
-                     "most to the score first.")
+        lists.append("Under each TF-IDF result are the words its plot summary shares with the "
+                     "question, the one that counts most first.")
     if "embed" in found:
-        lists.append("Embeddings compare whole sentences, so there are no words to list.")
+        lists.append("Embeddings compare whole sentences as lists of numbers, so they have no "
+                     "shared words to show.")
     out = ['<p class="hint">Click a title to see its plot summary.</p>',
            f'<p class="hint words-hint">{esc(" ".join(lists))}</p>' if lists else "",
            f'<div class="columns n{len(found)}">']
     for key, hits in found.items():
-        out.append(f'<section class="method"><h3>{esc(NAMES[key])}</h3>')
+        out.append(f'<section class="method"><h3>{esc(LIST_HEADS[key])}</h3>')
         if isinstance(hits, str):  # a problem, in words
             out.append(f'<p class="note">{esc(hits)}</p></section>')
             continue
@@ -232,7 +232,7 @@ def columns(found, answer_id=None, notes=None):
                 more = len(hit["matched"]) - MATCHED
                 if more > 0:
                     marked += f" and {more} more"
-                lines.append(f'<span class="words">Matched: {marked}</span>')
+                lines.append(f'<span class="words">Shared words: {marked}</span>')
             plot = highlight(overview(hit["id"]), words)
             out.append(f'<li class="hit{" right" if right else ""}"><details><summary>'
                        f'{" ".join(lines)}</summary><p class="plot">{plot}</p></details></li>')
@@ -249,9 +249,9 @@ def columns(found, answer_id=None, notes=None):
 
 def search_form(query="", show="all", i=1):
     return f"""<section class="search">
-<h2>Search for anything</h2>
+<h2>Try your own question</h2>
 <form method="get" action="/search">
-<label for="q">Your question</label>
+<label for="q">Describe a movie</label>
 <div class="row"><input type="search" id="q" name="q" value="{esc(query)}">
 <input type="hidden" name="show" value="{esc(show)}"><input type="hidden" name="i" value="{i}">
 <button type="submit">Search</button></div>
@@ -285,7 +285,7 @@ def home(params):
                    f"({sum(t(q, runs) for q, runs in questions)})</option>"
                    for v, lab, _, t in options)
     parts.append(f"""<section class="bank">
-<h2>The question bank, one question at a time</h2>
+<h2>Look through the questions</h2>
 <form class="pick" method="get" action="/">
 <label for="show">Show</label>
 <select id="show" name="show" onchange="this.form.submit()">{menu}</select>
@@ -303,19 +303,18 @@ def home(params):
     previous, following = (i - 2) % len(shown) + 1, i % len(shown) + 1
     parts.append(f"""<nav class="steps">
 <a href="{link(show=show, i=previous)}" rel="prev">Previous</a>
-<span>Question {i} of {len(shown)} <span class="id">({esc(q["id"])})</span></span>
+<span>Question {i} of {len(shown)} <span class="id">(id {esc(q["id"])})</span></span>
 <a href="{link(show=show, i=following)}" rel="next">Next</a>
 </nav>""")
 
-    ranks = ", ".join(f"{NAMES[key] if n == 0 else NAMES[key].lower()} {rank_words(runs[key]['rank'])}"
-                      for n, key in enumerate(methods))
+    ranks = " ".join(rank_sentence(key, runs[key]["rank"]) for key in methods)
     answer_words = set(runs["tfidf"].get("answer_matched", [])) if "tfidf" in runs else set()
-    marked = ", with the question's words marked" if "tfidf" in runs else ""
+    marked = " (words it shares with the question are highlighted)" if "tfidf" in runs else ""
     parts.append(f"""<article class="question">
 <p class="kind">{esc(KINDS.get(q["kind"], q["kind"]))}</p>
 {asked(q["question"])}
 <p class="answer">The right movie: <strong>{esc(q["answer_title"])}</strong></p>
-<p class="ranks">Where the right movie landed: {esc(ranks)}.</p>
+<p class="ranks">{esc(ranks)}</p>
 <p class="plot answer-plot"><span class="label">Its plot summary{marked}:</span> {highlight(overview(q["answer_id"]), answer_words)}</p>
 </article>""")
     if runs.get("embed", {}).get("cut_off"):
@@ -344,7 +343,7 @@ def search_page(params):
     show, i = params.get("show", "all"), params.get("i", "1")
     results, _ = bank()
     parts = [f"<h1>{esc(title(results))}</h1>",
-             f'<p><a href="{link(show=show, i=i)}">Back to the question bank</a></p>',
+             f'<p><a href="{link(show=show, i=i)}">Back to the questions</a></p>',
              search_form(query, show, i)]
     if query:
         found, notes = {}, {}

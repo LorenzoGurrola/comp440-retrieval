@@ -29,7 +29,7 @@ import textwrap
 import time
 
 from retrieval import (CUT_OFF, DEPTH, KINDS, MODEL, NAMES, RESULTS, TOP, EmbedSearch, Problem,
-                       TfidfSearch, describe, load_movies, load_questions, rank_words,
+                       TfidfSearch, describe, load_movies, load_questions, rank_sentence, rank_words,
                        read_results, score_sentences, search, tfidf_settings)
 
 
@@ -71,13 +71,12 @@ def show(ids):
             continue
         q = next(iter(runs.values()))
         movie = movies.get(q["answer_id"])
-        ranks = ", ".join(f"{NAMES[key] if n == 0 else NAMES[key].lower()} "
-                          f"{rank_words(runs[key]['rank'])}" for n, key in enumerate(runs))
+        ranks = " ".join(rank_sentence(key, runs[key]["rank"]) for key in runs)
         print(f"{qid}: {KINDS.get(q['kind'], q['kind'])}")
         print(wrap(q["question"]))
         print()
         print(f"The right movie: {q['answer_title']}")
-        print(f"Where the right movie landed: {ranks}.")
+        print(ranks)
         if movie:
             print(wrap(f"Its plot summary: {movie['overview']}", indent=""))
         if "tfidf" in runs:
