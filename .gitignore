@@ -1,0 +1,8 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+# Personal permission allowlist
+.claude/settings.local.json
+# macOS
+.DS_Store
