@@ -1,0 +1,105 @@
+/* The comparison site's look. site.py makes the HTML. Light and dark follow the computer's setting. */
+
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #5b5f66;
+  --line: #d4d7dc;
+  --panel: #f4f5f7;
+  --right-bg: #e3f4e8;
+  --right-line: #1f8a43;
+  --mark-bg: #ffe98a;
+  --link: #1859c4;
+  --note-bg: #fff4e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17191d;
+    --fg: #e9eaec;
+    --muted: #a3a8b0;
+    --line: #3a3e45;
+    --panel: #22252b;
+    --right-bg: #173a24;
+    --right-line: #4cc276;
+    --mark-bg: #6a5600;
+    --link: #8db4ff;
+    --note-bg: #3a2f17;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+h1 { font-size: 1.5rem; margin: 0.2rem 0 0.6rem; }
+h2 { font-size: 1.2rem; margin: 1.6rem 0 0.6rem; padding-top: 0.8rem; border-top: 1px solid var(--line); }
+h3 { font-size: 1.1rem; margin: 0 0 0.4rem; }
+
+a { color: var(--link); }
+code { font-size: 0.92em; background: var(--panel); padding: 0 4px; border-radius: 4px; }
+
+.score { margin: 0.3rem 0; }
+.note { background: var(--note-bg); padding: 6px 10px; border-radius: 6px; font-size: 0.95rem; }
+.explain, .hint, .kind, .id { color: var(--muted); font-size: 0.95rem; }
+.hint { margin: 0.8rem 0 0.4rem; }
+
+/* The dropdown and previous / next */
+.pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+select, input, button { font: inherit; color: inherit; }
+select, input[type="search"] {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px;
+}
+button {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px;
+  cursor: pointer;
+}
+.steps { display: flex; align-items: center; gap: 16px; margin: 0.8rem 0; flex-wrap: wrap; }
+.steps a {
+  text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 12px;
+  background: var(--panel);
+}
+
+/* One question */
+.question { margin: 0.6rem 0; }
+.kind { margin: 0 0 0.3rem; }
+.asked {
+  margin: 0 0 0.6rem; padding: 4px 0 4px 14px; border-left: 4px solid var(--line);
+  font-size: 1.15rem;
+}
+.asked details { font-size: 1rem; margin-top: 0.3rem; }
+.asked summary { color: var(--link); cursor: pointer; }
+.answer { margin: 0.3rem 0; }
+.ranks { margin: 0.3rem 0; font-weight: 600; }
+.plot { color: var(--muted); font-size: 0.95rem; margin: 0.3rem 0; }
+.answer-plot { border-left: 4px solid var(--right-line); padding-left: 10px; }
+.answer-plot .label { font-weight: 600; color: var(--fg); }
+
+/* The methods side by side */
+.columns { display: grid; gap: 16px; grid-template-columns: 1fr; }
+.columns.n2 { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+.hits { list-style: none; margin: 0; padding: 0; }
+.hit { border-top: 1px solid var(--line); padding: 6px 8px; }
+/* A hanging indent, so that a long title wraps under itself, not under its number */
+.hit summary { cursor: pointer; padding-left: 3.1em; text-indent: -3.1em; }
+.hit .n { color: var(--muted); display: inline-block; min-width: 1.9em; text-indent: 0; }
+.hit .title { font-weight: 600; }
+.hit details[open] .title { text-decoration: underline; }
+.hit .badge, .hit .words { display: block; text-indent: 0; font-size: 0.92rem; }
+.hit .badge { color: var(--right-line); font-weight: 700; }
+.hit .plot { padding-left: 3.1em; }
+.hit.right { background: var(--right-bg); border-left: 5px solid var(--right-line); }
+
+mark { background: var(--mark-bg); color: inherit; padding: 0 2px; border-radius: 3px; }
+
+/* The search box */
+.search label { display: block; margin-bottom: 4px; }
+.search .row { display: flex; gap: 8px; }
+.search input[type="search"] { flex: 1; min-width: 0; }
