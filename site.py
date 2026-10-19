@@ -33,7 +33,7 @@ STYLE = REPO / "site" / "style.css"
 SHORT = 60     # a longer question shows its first SHORT words, and the rest behind "Show the rest"
 MATCHED = 8    # a "Matched" list shows this many words, then "and N more"
 ROWS = [("Detail", "detail"), ("Reworded", "reworded"), ("Vague", "vague"), ("Real requests", "real")]
-PING = "comp440-retrieval site"
+PING = f"comp440-retrieval site in {REPO}"  # names the folder, so another folder's site is not taken as ours
 
 MOVIES = {}    # TMDB id -> movie, filled in main()
 lock = threading.Lock()
@@ -402,7 +402,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def ours(port):
-    """True if this site is already answering on the port."""
+    """True if this folder's site is already answering on the port. A site started from another
+    folder (another copy of the repository) answers with its own folder, so it is not ours."""
     try:
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/ping", timeout=2) as r:
             return r.read().decode() == PING
