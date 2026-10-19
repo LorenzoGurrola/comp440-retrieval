@@ -24,13 +24,15 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlencode, urlparse
 
-from retrieval import (DEPTH, KINDS, NAMES, REPO, TOP, EmbedSearch, Problem, TfidfSearch,
-                       load_movies, rank_words, read_results, score_sentences, search,
+from retrieval import (CUT_OFF, DEPTH, KINDS, NAMES, REPO, TOP, EmbedSearch, Problem,
+                       TfidfSearch, counts, load_movies, rank_words, read_results, search,
                        tfidf_settings)
 
 PORT = 8765
 STYLE = REPO / "site" / "style.css"
 SHORT = 60     # a longer question shows its first SHORT words, and the rest behind "Show the rest"
+MATCHED = 8    # a "Matched" list shows this many words, then "and N more"
+ROWS = [("Detail", "detail"), ("Reworded", "reworded"), ("Vague", "vague"), ("Real requests", "real")]
 PING = "comp440-retrieval site"
 
 MOVIES = {}    # TMDB id -> movie, filled in main()
@@ -97,13 +99,12 @@ def choices(methods):
     return found
 
 
-def highlight(text, words, lowercase=True):
+def highlight(text, words):
     """The text as HTML, with every word in `words` marked. It finds words the way TF-IDF does:
-    two or more letters or digits in a row."""
+    two or more letters or digits in a row, lowercased."""
     out, last = [], 0
     for m in re.finditer(r"(?u)\b\w\w+\b", text):
-        word = m.group().lower() if lowercase else m.group()
-        if word in words:
+        if m.group().lower() in words:
             out += [esc(text[last:m.start()]), f"<mark>{esc(m.group())}</mark>"]
             last = m.end()
     return "".join(out) + esc(text[last:])
@@ -117,13 +118,13 @@ def overview(movie_id):
 # ---------------------------------------------------------------------------------------------
 # Pieces of HTML
 
-def page(body):
+def page(body, title="Your results"):
     return f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Movie search</title>
+<title>{esc(title)}</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -135,19 +136,57 @@ def page(body):
 """
 
 
+def named(keys):
+    """'TF-IDF', or 'TF-IDF and embeddings': the methods' names as they go in a sentence."""
+    return " and ".join(NAMES[key] if i == 0 else NAMES[key].lower() for i, key in enumerate(keys))
+
+
+def title(results):
+    """The page title: "Your results: TF-IDF", later "Your results: TF-IDF and embeddings"."""
+    return "Your results" + (f": {named(results)}" if results else "")
+
+
+def score_table(results):
+    """For each kind of question, how often each method put the right movie 1st and in its top
+    10, as counts out of that kind's questions."""
+    head = ['<th scope="col" rowspan="2">Questions</th>']
+    head += [f'<th scope="colgroup" colspan="2">{esc(NAMES[key])}</th>' for key in results]
+    sub = "".join(f'<th scope="col">1st</th><th scope="col">in top {TOP}</th>' for _ in results)
+    rows = []
+    for label, kind in ROWS:
+        cells = []
+        for r in results.values():
+            n, first, top = counts([q for q in r["questions"] if q["kind"] == kind])
+            cells += [f"<td>{first} of {n:,}</td>", f"<td>{top} of {n:,}</td>"]
+        if n:
+            rows.append(f'<tr><th scope="row">{label}</th>{"".join(cells)}</tr>')
+    return f"""<div class="table-wrap"><table class="scores">
+<caption>How many times each method put the right movie 1st, and how many times in its top {TOP}, for each kind of question.</caption>
+<thead><tr>{"".join(head)}</tr><tr>{sub}</tr></thead>
+<tbody>
+{chr(10).join(rows)}
+</tbody>
+</table></div>"""
+
+
 def top_part(results):
-    """The title and one score paragraph for each method that has results."""
-    names = " and ".join(NAMES[key] if i == 0 else NAMES[key].lower() for i, key in enumerate(results))
-    parts = [f"<h1>Movie search{' with ' + names if names else ''}</h1>"]
-    for key, r in results.items():
-        parts.append(f'<p class="score">{esc(" ".join(score_sentences(r["name"], r["questions"])))}</p>')
+    """The home page's title, what the page shows, the score table, and a note if the TF-IDF
+    settings changed after the results were made."""
+    parts = [f"<h1>{esc(title(results))}</h1>"]
+    if not results:
+        return parts[0]
+    parts.append(f'<p class="intro">One question from the bank at a time: the movie it was looking '
+                 f"for, where each method put it, and each method's top {TOP}. Each method's list "
+                 f"is checked {DEPTH} movies deep, so a right movie further down shows as "
+                 f'"not in the top {DEPTH}".</p>')
+    parts.append(score_table(results))
     if "tfidf" in results:
         try:
             if results["tfidf"]["settings"] != tfidf_settings():
-                parts.append('<p class="note">These TF-IDF results used different settings from the '
-                             "ones in tfidf_settings.py now, which the search box uses. To update "
-                             "them, run <code>uv run python evaluate.py --method tfidf</code> and "
-                             "reload this page.</p>")
+                parts.append('<p class="note">Your TF-IDF settings changed after these results were '
+                             "made. The search box uses the new settings; the question bank still "
+                             "shows the old ones. To update it, run "
+                             "<code>uv run python evaluate.py --method tfidf</code> and reload.</p>")
         except Problem as e:
             parts.append(f'<p class="note">{esc(e)}</p>')
     return "\n".join(parts)
@@ -164,10 +203,17 @@ def asked(text):
             f"<p>... {esc(rest)}</p></details></blockquote>")
 
 
-def columns(found, answer_id=None, lowercase=True, notes=None):
+def columns(found, answer_id=None, notes=None):
     """Each method's top 10 side by side. `found` maps a method to its list of hits."""
     notes = notes or {}
+    lists = []
+    if "tfidf" in found:
+        lists.append("TF-IDF lists the question's words it found in each summary, the one that adds "
+                     "most to the score first.")
+    if "embed" in found:
+        lists.append("Embeddings compare whole sentences, so there are no words to list.")
     out = ['<p class="hint">Click a title to see its plot summary.</p>',
+           f'<p class="hint words-hint">{esc(" ".join(lists))}</p>' if lists else "",
            f'<div class="columns n{len(found)}">']
     for key, hits in found.items():
         out.append(f'<section class="method"><h3>{esc(NAMES[key])}</h3>')
@@ -182,9 +228,12 @@ def columns(found, answer_id=None, lowercase=True, notes=None):
             if right:
                 lines.append('<span class="badge">The right movie</span>')
             if "matched" in hit:
-                marked = ", ".join(f"<mark>{esc(w)}</mark>" for w in hit["matched"])
+                marked = ", ".join(f"<mark>{esc(w)}</mark>" for w in hit["matched"][:MATCHED])
+                more = len(hit["matched"]) - MATCHED
+                if more > 0:
+                    marked += f" and {more} more"
                 lines.append(f'<span class="words">Matched: {marked}</span>')
-            plot = highlight(overview(hit["id"]), words, lowercase)
+            plot = highlight(overview(hit["id"]), words)
             out.append(f'<li class="hit{" right" if right else ""}"><details><summary>'
                        f'{"".join(lines)}</summary><p class="plot">{plot}</p></details></li>')
         out.append("</ol>")
@@ -220,7 +269,7 @@ def home(params):
         parts.append("<p>No question-bank results yet. They appear here after you run "
                      "<code>uv run python evaluate.py --method tfidf</code>. Then reload this page.</p>")
         parts.append(search_form())
-        return page("\n".join(parts))
+        return page("\n".join(parts), title(results))
 
     methods = list(results)
     options = choices(methods)
@@ -240,14 +289,14 @@ def home(params):
 <form class="pick" method="get" action="/">
 <label for="show">Show</label>
 <select id="show" name="show" onchange="this.form.submit()">{menu}</select>
-<button type="submit">Show</button>
+<button type="submit">Go</button>
 </form>""")
     if explanation:
         parts.append(f'<p class="explain">{esc(explanation)}</p>')
     if not shown:
         parts.append("<p>No questions match this choice.</p></section>")
         parts.append(search_form(show=show))
-        return page("\n".join(parts))
+        return page("\n".join(parts), title(results))
 
     i = (i - 1) % len(shown) + 1
     q, runs = shown[i - 1]
@@ -258,24 +307,24 @@ def home(params):
 <a href="{link(show=show, i=following)}" rel="next">Next</a>
 </nav>""")
 
-    lowercase = results.get("tfidf", {}).get("settings", {}).get("LOWERCASE", True)
-    ranks = " ".join(f"{NAMES[key]}: {rank_words(runs[key]['rank'])}." for key in methods)
+    ranks = ", ".join(f"{NAMES[key] if n == 0 else NAMES[key].lower()} {rank_words(runs[key]['rank'])}"
+                      for n, key in enumerate(methods))
     answer_words = set(runs["tfidf"].get("answer_matched", [])) if "tfidf" in runs else set()
+    marked = ", with the question's words marked" if "tfidf" in runs else ""
     parts.append(f"""<article class="question">
 <p class="kind">{esc(KINDS.get(q["kind"], q["kind"]))}</p>
 {asked(q["question"])}
 <p class="answer">The right movie: <strong>{esc(q["answer_title"])}</strong></p>
-<p class="ranks">{esc(ranks)}</p>
-<p class="plot answer-plot"><span class="label">Its plot summary:</span> {highlight(overview(q["answer_id"]), answer_words, lowercase)}</p>
+<p class="ranks">Where the right movie landed: {esc(ranks)}.</p>
+<p class="plot answer-plot"><span class="label">Its plot summary{marked}:</span> {highlight(overview(q["answer_id"]), answer_words)}</p>
 </article>""")
     if runs.get("embed", {}).get("cut_off"):
-        parts.append('<p class="note">The embedding model reads only the first 256 word pieces '
-                     "(about 200 words) of a question, so it ignored the end of this one.</p>")
+        parts.append(f'<p class="note">{esc(CUT_OFF.format("this one"))}</p>')
     found = {key: runs[key]["top10"] for key in methods}
-    parts.append(columns(found, q["answer_id"], lowercase))
+    parts.append(columns(found, q["answer_id"]))
     parts.append("</section>")
     parts.append(search_form(show=show, i=i))
-    return page("\n".join(parts))
+    return page("\n".join(parts), title(results))
 
 
 def method(key):
@@ -294,29 +343,28 @@ def search_page(params):
     query = " ".join(params.get("q", "").split())
     show, i = params.get("show", "all"), params.get("i", "1")
     results, _ = bank()
-    parts = [top_part(results), f'<p><a href="{link(show=show, i=i)}">Back to the question bank</a></p>',
+    parts = [f"<h1>{esc(title(results))}</h1>",
+             f'<p><a href="{link(show=show, i=i)}">Back to the question bank</a></p>',
              search_form(query, show, i)]
     if query:
-        found, notes, lowercase = {}, {}, True
+        found, notes = {}, {}
         for key in ["tfidf"] + (["embed"] if "embed" in results else []):
             try:
                 with lock:
                     m = method(key)
                     found[key] = search(m, [query])[0]["top"]
                     if key == "tfidf":
-                        lowercase = m.settings["LOWERCASE"]
                         ignored = m.ignored(query)
                         if ignored:
                             notes[key] = "Not in TF-IDF's vocabulary, so ignored: " + ", ".join(ignored)
                     elif m.cut_off(query):
-                        notes[key] = ("The model reads only the first 256 word pieces (about 200 "
-                                      "words) of a question, so it ignored the end of this one.")
+                        notes[key] = CUT_OFF.format("this one")
             except Problem as e:
                 found[key] = str(e)
         if len(query.split()) > 20:  # a long question doesn't fit in the box, so show it all
             parts.append(f'<section class="question">{asked(query)}</section>')
-        parts.append(columns(found, None, lowercase, notes))
-    return page("\n".join(parts))
+        parts.append(columns(found, None, notes))
+    return page("\n".join(parts), title(results))
 
 
 # ---------------------------------------------------------------------------------------------
