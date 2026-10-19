@@ -59,18 +59,21 @@ def load_questions():
 # ---------------------------------------------------------------------------------------------
 # TF-IDF
 
+SETTINGS = ["REMOVE_STOP_WORDS", "MIN_MOVIES", "REPEATS_COUNT_LESS"]
+
+
 def tfidf_settings():
-    """The four choices in tfidf_settings.py, read from the file every time."""
+    """The three choices in tfidf_settings.py, read from the file every time."""
     try:
         values = runpy.run_path(str(SETTINGS_FILE))
     except SyntaxError as e:
         raise Problem(f"tfidf_settings.py has a mistake on line {e.lineno}: {e.msg}.")
     settings = {}
-    for name in ["LOWERCASE", "REMOVE_STOP_WORDS", "MIN_MOVIES", "REPEATS_COUNT_LESS"]:
+    for name in SETTINGS:
         if name not in values:
             raise Problem(f"tfidf_settings.py has no {name}. Put the line back.")
         settings[name] = values[name]
-    for name in ["LOWERCASE", "REMOVE_STOP_WORDS", "REPEATS_COUNT_LESS"]:
+    for name in ["REMOVE_STOP_WORDS", "REPEATS_COUNT_LESS"]:
         if not isinstance(settings[name], bool):
             raise Problem(f"In tfidf_settings.py, {name} must be True or False.")
     if type(settings["MIN_MOVIES"]) is not int or settings["MIN_MOVIES"] < 1:
@@ -79,12 +82,13 @@ def tfidf_settings():
 
 
 def describe(settings):
-    """'LOWERCASE = True, REMOVE_STOP_WORDS = False, ...', as the settings file writes them."""
+    """'REMOVE_STOP_WORDS = False, MIN_MOVIES = 1, ...', as the settings file writes them."""
     return ", ".join(f"{name} = {value}" for name, value in settings.items())
 
 
 class TfidfSearch:
-    """TF-IDF over the plot summaries: one row of word weights per movie."""
+    """TF-IDF over the plot summaries: one row of word weights per movie. Words are always
+    lowercased, so "Dog" and "dog" are one word."""
 
     key, name = "tfidf", "TF-IDF"
 
@@ -93,7 +97,7 @@ class TfidfSearch:
 
         self.movies, self.settings = movies, settings
         self.vectorizer = TfidfVectorizer(
-            lowercase=settings["LOWERCASE"],
+            lowercase=True,
             stop_words="english" if settings["REMOVE_STOP_WORDS"] else None,
             min_df=settings["MIN_MOVIES"],
             sublinear_tf=settings["REPEATS_COUNT_LESS"],
@@ -231,15 +235,22 @@ def rank_words(rank):
     return ordinal(rank) if rank else f"not in the top {DEPTH}"
 
 
+# What evaluate.py, search.py and site.py say when a question is longer than the model reads.
+CUT_OFF = ("The embedding model reads only about the first 200 words of a question, so it "
+           "ignored the end of {}.")
+
+
+def counts(group):
+    """(how many questions, how many have the right movie first, how many in the top 10)."""
+    first = sum(r["rank"] == 1 for r in group)
+    top = sum(r["rank"] is not None and r["rank"] <= TOP for r in group)
+    return len(group), first, top
+
+
 def score_sentences(name, rows, per_kind=False):
     """Plain sentences for one method's results: the written questions, then each kind of
-    written question when per_kind is True, then the real requests."""
-
-    def counts(group):
-        first = sum(r["rank"] == 1 for r in group)
-        top = sum(r["rank"] is not None and r["rank"] <= TOP for r in group)
-        return len(group), first, top
-
+    written question when per_kind is True, then the real requests. Embeddings are "they"."""
+    they = "they" if name == NAMES["embed"] else "it"
     written = [r for r in rows if r["kind"] != "real"]
     real = [r for r in rows if r["kind"] == "real"]
     lines = []
@@ -250,11 +261,11 @@ def score_sentences(name, rows, per_kind=False):
     if written and per_kind:
         for kind in dict.fromkeys(r["kind"] for r in written):
             n, first, top = counts([r for r in written if r["kind"] == kind])
-            lines.append(f"  Of the {n:,} {kind} questions, it put {first} first and {top} in "
+            lines.append(f"  Of the {n:,} {kind} questions, {they} put {first} first and {top} in "
                          f"the top {TOP}.")
     if real:
         n, first, top = counts(real)
-        start = "It" if written else name
+        start = they.capitalize() if written else name
         lines.append(f"{start} put the right movie first for {first} of {n:,} real requests and "
                      f"in the top {TOP} for {top}.")
     return lines

@@ -6,12 +6,9 @@ they show. After a change, run `uv run python evaluate.py --method tfidf` again 
 scores.
 
 The values below start as scikit-learn's defaults, the plainest version of TF-IDF. The name in
-brackets is the matching argument of scikit-learn's TfidfVectorizer, which retrieval.py builds
-from these four values.
+parentheses is the matching argument of scikit-learn's TfidfVectorizer, which retrieval.py builds
+from these three values. Words are always lowercased first, so "Dog" and "dog" are one word.
 """
-
-# Treat "Dog" and "dog" as the same word. True or False. (lowercase)
-LOWERCASE = True
 
 # Leave out about 300 common English words, such as "the", "a", "of" and "about", using
 # scikit-learn's list. True or False. (stop_words="english" when True)
@@ -21,6 +18,7 @@ REMOVE_STOP_WORDS = False
 # number, 1 or more. 1 keeps every word. (min_df)
 MIN_MOVIES = 1
 
-# Count a word that appears several times in one plot summary less than that many times:
-# 1 + log(count) instead of the count itself. True or False. (sublinear_tf)
+# When a word appears several times in one plot summary, count it less than its full count:
+# 1 + log(count) instead of count, so 4 appearances count as about 2.4. True or False.
+# (sublinear_tf)
 REPEATS_COUNT_LESS = False

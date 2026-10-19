@@ -20,9 +20,9 @@ import json
 import sys
 import time
 
-from retrieval import (DEPTH, MODEL, NAMES, RESULTS, TOP, EmbedSearch, Problem, TfidfSearch,
-                       describe, load_movies, load_questions, score_sentences, search,
-                       tfidf_settings)
+from retrieval import (CUT_OFF, DEPTH, MODEL, NAMES, RESULTS, TOP, EmbedSearch, Problem,
+                       TfidfSearch, describe, load_movies, load_questions, score_sentences,
+                       search, tfidf_settings)
 
 
 def main():
@@ -87,8 +87,7 @@ def main():
             cut.append(f"{n} of the {len(group):,} {label}")
     if cut:
         print()
-        print(f"The model reads only the first 256 word pieces of a question (about 200 words), so "
-              f"it ignored the end of {' and '.join(cut)}.")
+        print(CUT_OFF.format(" and ".join(cut)))
     print()
     print(f"Saved every question's top {TOP} in {path.relative_to(RESULTS.parent)}. "
           "To look through them: uv run python site.py")

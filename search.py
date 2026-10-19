@@ -7,14 +7,17 @@ The top 10 movies for a question of yours.
 
 TF-IDF is the default, with your settings from tfidf_settings.py. For each TF-IDF result it lists
 the words of your question that are also in that movie's plot summary, the word that adds the
-most to the score first. The score is the cosine similarity of the question's vector and the plot
-summary's vector: 1 is the most alike, and for TF-IDF, 0 means no word in common.
+most to the score first. The score is the cosine similarity of the question's list of numbers and
+the plot summary's: how closely the two point the same way. 1 is the most alike for both methods.
+For TF-IDF, 0 means no word in common; for embeddings, it means the two point in unrelated
+directions.
 """
 
 import argparse
 import sys
 
-from retrieval import TOP, EmbedSearch, Problem, TfidfSearch, load_movies, search, tfidf_settings
+from retrieval import (CUT_OFF, TOP, EmbedSearch, Problem, TfidfSearch, load_movies, search,
+                       tfidf_settings)
 
 
 def show(method, question):
@@ -32,9 +35,10 @@ def show(method, question):
         if ignored:
             more = f" and {len(ignored) - 15} more" if len(ignored) > 15 else ""
             print(f"      Not in TF-IDF's vocabulary, so ignored: {', '.join(ignored[:15])}{more}")
-    if method.key == "embed" and method.cut_off(question):
-        print("      The model reads only the first 256 word pieces of a question (about 200 "
-              "words), so it ignored the end of this one.")
+    if method.key == "embed":
+        print("      Embeddings compare whole sentences, so there are no matched words to list.")
+        if method.cut_off(question):
+            print(f"      {CUT_OFF.format('this one')}")
 
 
 def main():
