@@ -191,10 +191,12 @@ If you can, do this step before class, so class time starts with the predictions
 * Claude starts `uv run python evaluate.py --method embed`, which runs the question bank with
   embeddings. While it runs, Claude explains what a sentence embedding is. Say it back in a
   sentence or two of your own.
-* When it finishes, Claude shows its scores. Reload the site: it now shows both methods. Where
-  does each one do better, and why? If you'd like, Claude reruns your Part 3 questions with both
-  methods. For embeddings the score is the same cosine similarity, of the model's lists of
-  numbers: 1 is the most alike, and 0 means the two point in unrelated directions.
+* When it finishes, Claude shows its scores. Reload the site: it now shows both methods, and its
+  Show menu has three new choices, "TF-IDF did better", "Embeddings did better" and "Both
+  missed", each with its count. Where does each one do better, and why? If you'd like, Claude
+  reruns your Part 3 questions with both methods. For embeddings the score is the same cosine
+  similarity, of the model's lists of numbers: 1 is the most alike, and 0 means the two point in
+  unrelated directions.
 * Claude shows your Part 0 predictions as you wrote them. Which held, and which would you change?
 * How might you combine the two methods? We'll pick this up on Thursday.
 
