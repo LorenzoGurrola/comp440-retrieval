@@ -82,7 +82,8 @@ session is missed.
 
 ## The task
 
-Six short parts, about 50 minutes in all. The minutes are a guide.
+Six short parts. In class most of you will get through Part 3 or 4; Part 5 is fine to do at
+home. The minutes are a guide.
 
 ### Part 0. Setup and predictions · about 10 minutes (5 if you did Step 1 before class)
 
@@ -181,7 +182,8 @@ If you can, do this step before class, so class time starts with the predictions
   the right movie, where TF-IDF ranked it, and TF-IDF's top 10 with the words each one shares
   with the question. Look through some answers, especially the misses: questions where the
   right movie isn't in the top 10. To see just those, pick "TF-IDF missed" in the Show menu.
-  Tell Claude a question's id, like w026, to talk about it.
+  Tell Claude a question's id, like w026, to talk about it. If the site doesn't work for you,
+  Claude can show you the misses in the terminal instead.
 * What do the misses you looked at have in common?
 
 ### Part 5. Embeddings · about 12 minutes

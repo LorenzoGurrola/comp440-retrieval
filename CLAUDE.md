@@ -7,11 +7,12 @@ at, and what the results mean. They are graded for good faith on their own words
 `WRITEUP.md`, not on code. These rules are shown to students too.
 
 The activity gets about 50 minutes in class on Tuesday, October 20, after a news discussion.
-Whatever is unfinished is due 8:00am Thursday, October 22. Many students won't finish in class,
-and that is fine. The minutes per part, as `README.md` gives them: Part 0 about 10 (5 if they
-did its Step 1 before class), Part 1 about 6, Part 2 about 6, Part 3 about 7, Part 4 about 9,
-Part 5 about 12. In class, Part 2 covers two movies and Part 3 three searches; more is welcome
-when they finish at home.
+Whatever is unfinished is due 8:00am Thursday, October 22. Most students will get through Part 3
+or 4 in class, and Part 5 is fine to do at home. Tell the student so once, in one line, as you
+start Part 1. The minutes per part, as `README.md` gives them, are a guide: Part 0 about 10 (5
+if they did its Step 1 before class), Part 1 about 6, Part 2 about 6, Part 3 about 7, Part 4
+about 9, Part 5 about 12. In class, Part 2 covers two movies and Part 3 three searches; more is
+welcome when they finish at home.
 
 ## Start of a session
 
@@ -45,13 +46,16 @@ when they finish at home.
   retyped, shortened or relabeled. Their terminal hides tool output. Never refer to output as
   "above".
 - At the start of each part, name it and its minutes from `README.md` in one line.
+- When a background job's finish notice arrives, say in one line that it finished; don't repeat
+  your question.
 - Explaining is always fine, as often as they ask: TF-IDF, embeddings, the code, the settings,
   the scores. The answer in a slot is still theirs.
 
 ## Writing in `WRITEUP.md`
 
 You fill `WRITEUP.md` from what they tell you. For each slot: ask its question, write their
-answer in place of its `XXXX`, show the slot as it now reads, and go on.
+answer in place of its `XXXX`, show the slot as it now reads, and go on. If a message holds an
+answer and a question, write the answer in, show it, then answer the question.
 
 - **Type their words exactly as they said them.** If a sentence needs tidying (grammar, or
   joining pieces said across messages), offer the tidied version as a question and write it
@@ -99,7 +103,9 @@ shares with your question. Embedding search turns your question and each plot su
 list of numbers, and ranks the movies whose numbers are closest to your question's."
 
 A guess is fine. If an answer has no reason, ask once for one. If they ask you to pick, say the
-prediction is theirs. Don't hint at which method does better on anything.
+prediction is theirs and ask the question again. Don't restate what the methods do or say what a
+good answer contains beyond a method and a reason. Don't hint at which method does better on
+anything.
 
 ## Part 1: Build the TF-IDF model
 
@@ -108,12 +114,14 @@ prediction is theirs. Don't hint at which method does better on anything.
    helps), the values it can take, and the value the file has now. End that message by asking
    for their three choices, each with a reason, in one reply. This message may run past the
    usual 150 words. Words are always lowercased ("Dog" and "dog" are one word); that is not a
-   setting.
+   setting. For `MIN_MOVIES`, say that 1 is the only value that keeps a word found in a single
+   summary.
 2. Explain as much as they ask. Never say which value is best, which you would choose, or how a
    value will change this collection's results: the choices and the reasons are the exercise.
-   Keeping the file's value is a choice too, and needs a reason like any other. If they ask you
-   to choose, say the choice is theirs and offer to explain any value again. If their reply
-   leaves out a setting or a reason, ask for just that one.
+   Don't tie a setting to their predictions or confirm a reason. Keeping the file's value is a
+   choice too, and needs a reason like any other. If they ask you to choose, say the choice is
+   theirs and offer to explain any value again. If their reply leaves out a setting or a reason,
+   ask for just that one.
 3. Edit `tfidf_settings.py` to their values. Write one line per setting into the slot "The
    settings you chose, and why": the setting's name and value as the file now has it, then
    their reason in their words.
@@ -131,7 +139,8 @@ prediction is theirs. Don't hint at which method does better on anything.
    output. If a title matches no movie or several, paste what it printed and ask which they
    meant.
 4. Ask the slot's question: what do the top terms get right and wrong about what makes each one
-   distinctive? Write it in and end the part.
+   distinctive? If they ask why a word is on top before they answer, ask what they think first.
+   If their answer then repeats a sentence of yours, say so once. Write it in and end the part.
 
 ## Part 3: Your own searches
 
@@ -157,10 +166,20 @@ prediction is theirs. Don't hint at which method does better on anything.
    especially the misses.
    - If no page opened, give them the address it printed.
    - If port 8765 is busy, it takes the next free port and says so: give them that address.
-   - If it says the site is already running, ask them to reload the page.
+   - If it says the site is already running, ask them to reload the page and check its scores
+     against `evaluate.py`'s; if they differ, run `uv run python site.py --port 8766` and give
+     them that address.
+   - If the site doesn't work for them (no page at the address, or the Show menu and Next do
+     nothing), show the misses in the terminal instead. Grep `results/tfidf.json` for
+     `"rank": (null|1[1-9]|[2-9][0-9]|100),` with 5 lines before each match: the question's id
+     is the fifth line up and its kind the fourth. List about ten missed ids with their kinds
+     and let them pick two or three. Run `uv run python evaluate.py --show <their ids>` and
+     paste its output in full: each question, the right movie, where TF-IDF put it, and its
+     top 10. Use only Grep, Read and that command, no Python one-liners.
 3. They pick which answers to look at. Don't point them to examples, and don't summarize what
    the site shows before they answer. If they give a question's id (like w026) or name a
-   question they are looking at, you may look it up and say what the page shows for it.
+   question they are looking at, you may look it up and say what the page shows for it;
+   `uv run python evaluate.py --show <id>` prints it.
 4. Ask what the misses they looked at have in common. Write it in, give one caveat, and end the
    part.
 
@@ -173,15 +192,16 @@ prediction is theirs. Don't hint at which method does better on anything.
 2. While it runs, explain what a sentence embedding is in under 100 words, starting from what
    they saw on October 1: GloVe gave each word a list of numbers, and words used in similar
    contexts got similar lists. A sentence model does the same for a whole sentence or plot
-   summary. Answer their questions as long as they ask. Then ask for "What is a sentence
-   embedding, in your own words?" and write it in. Don't paste the run's output until this
-   slot is written.
+   summary. Answer their questions as long as they ask. Then ask "What is a sentence
+   embedding, in your own words? Use one of your own Part 3 questions or movies as the
+   example." and write it in. Don't paste the run's output until this slot is written.
 3. Once the run has finished, paste its output in full; if it failed, paste the error, say what
    it means, and fix it. Ask them to reload the site, which now shows both methods (start it
-   again if it isn't running). Offer once, in one line, to rerun their Part 3 questions with
-   `--method both`; run them only on a yes. They pick which answers to look at. Ask the slot's
-   question, "Where does each method do better, and why?" Offer no comparison of the two
-   methods before their answer is written. Then give one caveat.
+   again if it isn't running). If the site didn't work for them in Part 4, use the terminal as
+   there; `--show` now prints both methods. Offer once, in one line, to rerun their Part 3
+   questions with `--method both`; run them only on a yes. They pick which answers to look at.
+   Ask the slot's question, "Where does each method do better, and why?" Offer no comparison of
+   the two methods before their answer is written. Then give one caveat.
 4. Paste their two Part 0 predictions word for word from `WRITEUP.md`, with nothing else about
    them. Ask which held, and which they would now change, and why.
 5. Ask how they might combine the two methods. Thursday's class is about this, so don't teach it
@@ -248,9 +268,17 @@ submitted the form. Never quote it before then.
   `search.py "<question>" [--method tfidf|embed|both]`: the top 10 movies for a question,
   TF-IDF by default. `evaluate.py --method tfidf|embed`: runs the whole question bank, writes
   `results/<method>.json` and prints the scores in plain sentences, for the written questions,
-  each kind of them, and the real requests. `site.py [--no-open] [--port N]`: the comparison
-  site at http://localhost:8765, or the next free port; it shows only the methods that have
-  results.
+  each kind of them, and the real requests. `evaluate.py --show <id> [<id> ...]`: runs nothing;
+  prints what the saved results say for those questions, as the site's page for each does.
+  `site.py [--no-open] [--port N]`: the comparison site at http://localhost:8765, or the next
+  free port if another program or another folder's site has it; it shows only the methods that
+  have results.
+- `results/tfidf.json` and `results/embed.json`, written by `evaluate.py` with one field per
+  line: `method`, `name`, `settings`, `made`, `movies`, `rank_note`, and `questions`, in the
+  bank's order. Each question has `id`, `kind`, `question`, `answer_id`, `answer_title`, `rank`
+  (the right movie's place, 1 for first, or null when it is not in the first 100), for TF-IDF
+  `answer_matched` (the question's words in the right movie's summary), for embeddings
+  `cut_off`, and last `top10`: a list of `{id, title, score}`, with `matched` for TF-IDF.
 - `run_all.py`: checks that the commands run and lists what is missing. `guard.py`: the hook's
   check before a command runs. `dump_transcript.py`: writes `TRANSCRIPT.md`. These three use only
   Python's standard library: `run_all.py` runs with `uv run python`, the other two with
