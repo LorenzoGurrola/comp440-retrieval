@@ -3,8 +3,8 @@
 Claude writes your answers here as you say them. A sentence or two is enough for each. Your
 Part 0 predictions stay as you first wrote them; Part 5 asks what you would change.
 
-**Name:** XXXX
-**Date:** XXXX
+**Name:** Lorenzo Gurrola
+**Date:** October 22, 2026
 
 ## Part 0: Predictions
 
