@@ -708,4 +708,10 @@ Last question for this part: how might you combine the two methods? A sentence o
 **User:**
 Maybe place a weight on each, and try different weights for each step
 
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Refresh transcript, commit Part 5 and push
+- 🔧 `Skill`: checkpoint
+- 🔧 `Bash`: Check commands run and list missing work
+
 <!-- end-session: 9b1a36f3-7c4b-46a0-b9b1-ae1fba8f48c5 -->
