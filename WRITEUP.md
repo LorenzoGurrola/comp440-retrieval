@@ -56,16 +56,16 @@ TF-IDF succeeds when it matches many and/or specific words, such as character na
 
 ### What is a sentence embedding, in your own words?
 
-XXXX
+A sentence embedding is a list of numbers that describe a word. When the list is interpreted as a vector, similar words will have vectors that point in similar directions. For example, the words in "Beauty in the beast" could have an embedding in this way. also, this technique can be used on full sentences or larger blocks of text.
 
 ### Where does each method do better, and why?
 
-XXXX
+TF-IDF does better where there are a lot of keywords, and embeddings did better when there wern't
 
 ### Your Part 0 predictions: which held, and which would you change?
 
-XXXX
+The prediction from part 0 held, and I wouldn't change it
 
 ### How might you combine the two methods?
 
-XXXX
+Maybe place a weight on each, and try different weights for each step
