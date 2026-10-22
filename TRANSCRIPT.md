@@ -7,7 +7,7 @@ summarized as one-liners.
 <!-- transcript-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac | 2026-10-22T14:13:48.462Z -->
 ## Session `16ad6d23`, 2026-10-22 14:13:48
 
-*11 user turns. Tool outputs and reasoning omitted.*
+*15 user turns. Tool outputs and reasoning omitted.*
 
 **User:**
 how long does this assignment take
@@ -289,5 +289,124 @@ Your settings: REMOVE_STOP_WORDS = True, MIN_MOVIES = 2, REPEATS_COUNT_LESS = Tr
 
 **User:**
 For Beauty and the Beast, words like "belle" don't really capture the plot too well. For the Joker, my opinion is that all of the words capture the overall plot.
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Commit Part 2, push, and check for template updates
+I've written it in. The slot now reads:
+
+```
+### Your movies: what do the top terms get right and wrong about what makes each one distinctive?
+
+For Beauty and the Beast, words like "belle" don't really capture the plot too well. For the Joker, my opinion is that all of the words capture the overall plot.
+```
+
+Here's the commit and push:
+
+```
+Wrote TRANSCRIPT.md: 1 session(s).
+1 session(s) found; this session in TRANSCRIPT.md: yes.
+[main 5c5a542] Part 2 done
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+To https://github.com/LorenzoGurrola/comp440-retrieval.git
+   b11e85e..5c5a542  main -> main
+```
+
+Part 2 is saved on GitHub, and the template has no new changes.
+
+**Part 3: Your own searches** (about 7 minutes). You'll run three searches. Each one is a question that describes a movie in your own words, without its title.
+
+What's your first question?
+
+**User:**
+What movie has an adventurer in Utah trapped with a boulder over his arm for days, until he finally cuts it off and escapes
+
+**Claude:**
+- 🔧 `Bash`: Run the student's first TF-IDF search
+```
+Question: What movie has an adventurer in Utah trapped with a boulder over his arm for days, until he finally cuts it off and escapes
+
+TF-IDF, top 10:
+   1. 0.237  127 Hours (2010)   matched: utah, arm
+   2. 0.171  Around the World in 80 Days (1956)   matched: days, movie
+   3. 0.146  Adventures of Buckaroo Banzai Across the 8th Dimension, The (1984)   matched: adventurer
+   4. 0.138  Tomb Raider (2018)   matched: adventurer
+   5. 0.124  War Dogs (2016)   matched: arm
+   6. 0.117  Pink Panther Strikes Again, The (1976)   matched: escapes, finally
+   7. 0.108  Sahara (2005)   matched: adventurer
+   8. 0.103  Devil (2010)   matched: trapped
+   9. 0.101  World's Fastest Indian, The (2005)   matched: utah
+  10. 0.100  Vanilla Sky (2001)   matched: arm
+      Ignored as stop words: what, has, an, in, with, over, his, for, until, he, it, off, and.
+      Not in the vocabulary (in fewer than 2 summaries, or none): boulder.
+```
+
+In each line, the number is the TF-IDF score. "matched" lists the question's words that appear in that movie's summary. The last two lines list the question's words that weren't used.
+
+What's your second question?
+
+**User:**
+What movie involves a robot that tricks a computer programmer to let her out of her enclosure by pretending to fall in love with him
+
+**Claude:**
+- 🔧 `Bash`: Run the student's second TF-IDF search
+```
+Question: What movie involves a robot that tricks a computer programmer to let her out of her enclosure by pretending to fall in love with him
+
+TF-IDF, top 10:
+   1. 0.187  Antitrust (2001)   matched: programmer, computer
+   2. 0.181  I.Q. (1994)   matched: pretending, love
+   3. 0.146  Robot & Frank (2012)   matched: robot, involves
+   4. 0.143  Let Me In (2010)   matched: let, movie
+   5. 0.141  Black Mirror: Bandersnatch (2018)   matched: programmer
+   6. 0.139  Buffalo '66 (a.k.a. Buffalo 66) (1998)   matched: pretending
+   7. 0.123  Hackers (1995)   matched: computer
+   8. 0.120  Peeping Tom (1960)   matched: involves, movie
+   9. 0.119  Maltese Falcon, The (1941)   matched: involves
+  10. 0.119  Eve of Destruction (1991)   matched: robot
+      Ignored as stop words: what, that, to, her, out, of, by, in, with, him.
+      Not in the vocabulary (in fewer than 2 summaries, or none): enclosure.
+```
+
+What's your third question?
+
+**User:**
+What movie involves ants that revolt against their grasshopper overlords using trickery and bravery
+
+**Claude:**
+- 🔧 `Bash`: Run the student's third TF-IDF search
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+```
+Question: What movie involves ants that revolt against their grasshopper overlords using trickery and bravery
+
+TF-IDF, top 10:
+   1. 0.201  Shaggy Dog, The (1959)   matched: bravery
+   2. 0.161  Peeping Tom (1960)   matched: involves, movie
+   3. 0.160  Mutiny on the Bounty (1935)   matched: revolt
+   4. 0.160  Maltese Falcon, The (1941)   matched: involves
+   5. 0.150  Conquest of the Planet of the Apes (1972)   matched: revolt
+   6. 0.142  Rise of the Planet of the Apes (2011)   matched: revolt
+   7. 0.119  Braveheart (1995)   matched: revolt
+   8. 0.119  Kick-Ass 2 (2013)   matched: bravery
+   9. 0.118  True Grit (1969)   matched: involves
+  10. 0.118  Pinocchio (1940)   matched: bravery
+      Ignored as stop words: what, that, against, their, and.
+      Not in the vocabulary (in fewer than 2 summaries, or none): ants, grasshopper, overlords, trickery.
+```
+
+I've written your three questions into `WRITEUP.md`, word for word:
+
+```
+### Your questions, as you typed them
+
+What movie has an adventurer in Utah trapped with a boulder over his arm for days, until he finally cuts it off and escapes
+What movie involves a robot that tricks a computer programmer to let her out of her enclosure by pretending to fall in love with him
+What movie involves ants that revolt against their grasshopper overlords using trickery and bravery
+```
+
+**Did the movies you meant come up? What did TF-IDF get right and wrong?** A sentence or two is enough.
+
+**User:**
+1/3 movies were correct. I think if I used more keywords, TF-IDF mgiht have done better
 
 <!-- end-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac -->
