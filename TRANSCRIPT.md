@@ -7,7 +7,7 @@ summarized as one-liners.
 <!-- transcript-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac | 2026-10-22T14:13:48.462Z -->
 ## Session `16ad6d23`, 2026-10-22 14:13:48
 
-*4 user turns. Tool outputs and reasoning omitted.*
+*7 user turns. Tool outputs and reasoning omitted.*
 
 **User:**
 how long does this assignment take
@@ -74,5 +74,61 @@ Lorenzo Gurrola
 - 🔧 `Read`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
 - 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
 - 🔧 `Read`: /private/tmp/claude-501/-Users-lorenzogurrola-Desktop-Files-COMP440-comp440-retrieval/16ad6d23-79...
+- 🔧 `Bash`: Refresh transcript and commit name and date
+The background job finished:
+
+```
+The embedding model is ready: it matches the shipped vectors for 5 test movies.
+```
+
+I wrote your name and today's date into `WRITEUP.md` and committed them:
+
+```
+Wrote TRANSCRIPT.md: 1 session(s).
+1 session(s) found; this session in TRANSCRIPT.md: yes.
+[main 4574934] Name and date
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+```
+
+**Part 0: Predictions** (about 5 minutes, since the install is already done).
+
+Keyword search (TF-IDF) scores a movie by the words its plot summary shares with your question. Embedding search turns your question and each plot summary into a list of numbers, and ranks the movies whose numbers are closest to your question's.
+
+First prediction: **Questions that name a character, place or thing: which method will do better, and why?** A sentence or two is enough.
+
+**User:**
+I need more context
+
+**Claude:**
+Here's the setup. There's a collection of 4,309 movies, each with a short plot summary. A question describes one movie without naming it, and each method ranks all 4,309 movies by how well they fit. A method does better when the right movie lands closer to the top.
+
+This first prediction is about one kind of question: one that names something specific in the movie, like a character, a place or an object. For example, it might mention a character's name or the city the story takes place in.
+
+The two methods compare a question to a summary differently:
+
+- **TF-IDF** looks at the words themselves. A movie scores higher when its summary contains the question's words, especially words that few other summaries use.
+- **Embeddings** turn the whole question and each whole summary into a list of numbers. A movie scores higher when its list is close to the question's list.
+
+A guess is fine. **For questions that name a character, place or thing, which method will do better, and why?** A sentence or two is enough.
+
+**User:**
+TF-IDF because the words will match
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+I've written it in. The slot now reads:
+
+```
+### Questions that name a character, place or thing: which method will do better, and why?
+
+TF-IDF because the words will match
+```
+
+Second prediction. A vague description is how you'd describe a movie to a friend when you can't remember much about it.
+
+**Vague descriptions: which method will do better, and why?** A sentence or two is enough.
+
+**User:**
+Embeddings because they will capture more of the data if you can't recall specific words
 
 <!-- end-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac -->
