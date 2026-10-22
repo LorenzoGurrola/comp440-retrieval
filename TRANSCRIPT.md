@@ -7,7 +7,7 @@ summarized as one-liners.
 <!-- transcript-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac | 2026-10-22T14:13:48.462Z -->
 ## Session `16ad6d23`, 2026-10-22 14:13:48
 
-*19 user turns. Tool outputs and reasoning omitted.*
+*22 user turns. Tool outputs and reasoning omitted.*
 
 **User:**
 how long does this assignment take
@@ -511,4 +511,201 @@ Look through some answers, especially the misses, and tell me when you have. You
 **User:**
 TF-IDF succeeds when it matches many and/or specific words, such as character names, to the question. It fails when it matches few or unspecific words, such as "family" or "painting"
 
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Commit Part 4 with TF-IDF results, push, check updates
+- 🔧 `Bash`: Run the question bank with embeddings
+I've written it in. The slot now reads:
+
+```
+### The misses you looked at: what do they have in common?
+
+TF-IDF succeeds when it matches many and/or specific words, such as character names, to the question. It fails when it matches few or unspecific words, such as "family" or "painting"
+```
+
+One way this could mislead you: some questions match few words because your settings dropped their rarest words (as with "boulder" in your first search), not because the question itself was vague.
+
+```
+Wrote TRANSCRIPT.md: 1 session(s).
+1 session(s) found; this session in TRANSCRIPT.md: yes.
+[main 029bdf4] Part 4 done
+ 2 files changed, 56761 insertions(+), 2 deletions(-)
+ create mode 100644 results/tfidf.json
+To https://github.com/LorenzoGurrola/comp440-retrieval.git
+   ace424c..029bdf4  main -> main
+```
+
+Part 4 is saved on GitHub, and the template has no new changes.
+
+**Part 5: Embeddings** (about 12 minutes). The model finished downloading during setup. I've started the question bank with embeddings in the background, and it takes a minute or so.
+
+On October 1 you saw GloVe, which gives each word a list of numbers. Words used in similar contexts get similar lists. A sentence model does the same for a whole sentence or plot summary, giving it one list of numbers (384 for this model). Two texts about similar things end up with similar lists, even when they share no words. To search, the model turns your question into a list and ranks the movies whose summary lists are closest to it.
+
+**What is a sentence embedding, in your own words? Use one of your own Part 3 questions or movies as the example.** A sentence or two is enough.
+
+**User:**
+<task-notification>
+<task-id>beiwmw8s4</task-id>
+<tool-use-id>toolu_01Jqe6nXMqnQqF4LKPnUteL1</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-lorenzogurrola-Desktop-Files-COMP440-comp440-retrieval/16ad6d23-79b7-4ae2-a701-b461a8f4e6ac/tasks/beiwmw8s4.output</output-file>
+<status>completed</status>
+<summary>Background command "Run the question bank with embeddings" completed (exit code 0)</summary>
+</task-notification>
+
+**Claude:**
+- 🔧 `Bash`: Show the embedding run's last line
+- 🔧 `Bash`: Show the last line the run printed
+The embedding run finished. Here's the last line it printed:
+
+```
+Saved every question's top 10 in results/embed.json. To look through them: uv run python site.py
+```
+
+I'll show the scores once your answer to the question about sentence embeddings is written in.
+
+**User:**
+A sentence embedding is a list of numbers that describe a word. When the list is interpreted as a vector, similar words will have vectors that point in similar directions. For example, the words in "Beauty in the beast" could have an embedding in this way.
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+I've written it in. The slot now reads:
+
+```
+### What is a sentence embedding, in your own words?
+
+A sentence embedding is a list of numbers that describe a word. When the list is interpreted as a vector, similar words will have vectors that point in similar directions. For example, the words in "Beauty in the beast" could have an embedding in this way.
+```
+
+Here's one thing to check against how the method works. Your answer describes one list of numbers for each word, which is what GloVe does. The sentence model instead gives a single list for a whole piece of text. For example, the whole Beauty and the Beast plot summary gets one list, and so does each of your search questions.
+
+Do you want to change your answer, or keep it as it is? Either is fine.
+
+**User:**
+Add a note at the end that says "also, this technique can be used on full sentences or larger blocks of text."
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Read`: /private/tmp/claude-501/-Users-lorenzogurrola-Desktop-Files-COMP440-comp440-retrieval/16ad6d23-79...
+I've added your note. The slot now reads:
+
+```
+### What is a sentence embedding, in your own words?
+
+A sentence embedding is a list of numbers that describe a word. When the list is interpreted as a vector, similar words will have vectors that point in similar directions. For example, the words in "Beauty in the beast" could have an embedding in this way. also, this technique can be used on full sentences or larger blocks of text.
+```
+
+Here's the embedding run's output:
+
+```
+Embedding 518 questions. This can take a minute.
+Ran 518 questions against 4,309 movies in 9 seconds.
+
+Embeddings put the right movie first for 31 of 100 written questions and in the top 10 for 59.
+  Of the 34 detail questions, they put 24 first and 31 in the top 10.
+  Of the 33 reworded questions, they put 4 first and 18 in the top 10.
+  Of the 33 vague questions, they put 3 first and 10 in the top 10.
+They put the right movie first for 32 of 418 real requests and in the top 10 for 81.
+
+The embedding model reads only about the first 200 words of a question, so it ignored the end of 62 of the 418 real requests.
+
+Saved every question's top 10 in results/embed.json. To look through them: uv run python site.py
+```
+
+The site is still running. Reload http://localhost:8765, and it now shows both methods. The Show menu has three new choices, each with its count: "TF-IDF did better", "Embeddings did better" and "Both missed".
+
+Look at one question from "TF-IDF did better" and one from "Embeddings did better", whichever you like. Tell me when you have.
+
+If you want, I can also rerun your three Part 3 questions with both methods.
+
 <!-- end-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac -->
+
+<!-- transcript-session: 9b1a36f3-7c4b-46a0-b9b1-ae1fba8f48c5 | 2026-10-22T21:32:59.360Z -->
+## Session `9b1a36f3`, 2026-10-22 21:32:59
+
+*5 user turns. Tool outputs and reasoning omitted.*
+
+**User:**
+keep going
+
+**Claude:**
+- 🔧 `Bash`: Show history, remotes, upstream changes and status
+- 🔧 `Read`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Run the question bank with embeddings
+- 🔧 `Bash`: Start the comparison site
+- 🔧 `Read`: /private/tmp/claude-501/-Users-lorenzogurrola-Desktop-Files-COMP440-comp440-retrieval/9b1a36f3-7c...
+You're on Part 5, Embeddings (about 12 minutes). Your sentence-embedding answer is already saved. I reran the question bank with embeddings because the last session's output is gone. Here it is:
+
+```
+Embedding 518 questions. This can take a minute.
+Ran 518 questions against 4,309 movies in 10 seconds.
+
+Embeddings put the right movie first for 31 of 100 written questions and in the top 10 for 59.
+  Of the 34 detail questions, they put 24 first and 31 in the top 10.
+  Of the 33 reworded questions, they put 4 first and 18 in the top 10.
+  Of the 33 vague questions, they put 3 first and 10 in the top 10.
+They put the right movie first for 32 of 418 real requests and in the top 10 for 81.
+
+The embedding model reads only about the first 200 words of a question, so it ignored the end of 62 of the 418 real requests.
+
+Saved every question's top 10 in results/embed.json. To look through them: uv run python site.py
+```
+
+I started the comparison site again:
+
+```
+The site is running at http://localhost:8765. Stop it with Ctrl-C.
+```
+
+Reload the page. It now shows both methods. Its Show menu has three new choices, each with a count: "TF-IDF did better", "Embeddings did better" and "Both missed".
+
+I can also rerun your Part 3 questions with both methods if you want.
+
+Pick one question from "TF-IDF did better" and one from "Embeddings did better", whichever you like. Tell me when you've looked at both.
+
+**User:**
+I looked at Jaws and Groundhog day
+
+**Claude:**
+Where does each method do better, and why? A sentence or two is enough.
+
+**User:**
+TF-IDF does better where there are a lot of keywords, and embeddings did better when there wern't
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+The slot now reads:
+
+> ### Where does each method do better, and why?
+>
+> TF-IDF does better where there are a lot of keywords, and embeddings did better when there wern't
+
+One caveat: you looked at two questions, so the pattern rests on one example per method.
+
+Here are your two Part 0 predictions:
+
+> **Questions that name a character, place or thing:** TF-IDF because the words will match
+
+> **Vague descriptions:** Embeddings because they will capture more of the data if you can't recall specific words
+
+Which prediction held, and which would you change now? Why? A sentence or two is enough.
+
+**User:**
+The prediction from part 0 held, and I wouldn't change it
+
+**Claude:**
+- 🔧 `Bash`: Count first and top-10 hits for detail and vague questions
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+The slot now reads:
+
+> ### Your Part 0 predictions: which held, and which would you change?
+>
+> The prediction from part 0 held, and I wouldn't change it
+
+One caveat about the detail questions: embeddings put the right movie first for 24 of 34, and TF-IDF did for 18 of 34.
+
+Last question for this part: how might you combine the two methods? A sentence or two is enough.
+
+**User:**
+Maybe place a weight on each, and try different weights for each step
+
+<!-- end-session: 9b1a36f3-7c4b-46a0-b9b1-ae1fba8f48c5 -->
