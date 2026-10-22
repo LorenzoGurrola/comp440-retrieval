@@ -7,7 +7,7 @@ summarized as one-liners.
 <!-- transcript-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac | 2026-10-22T14:13:48.462Z -->
 ## Session `16ad6d23`, 2026-10-22 14:13:48
 
-*9 user turns. Tool outputs and reasoning omitted.*
+*11 user turns. Tool outputs and reasoning omitted.*
 
 **User:**
 how long does this assignment take
@@ -181,5 +181,113 @@ If you'd like, I can explain any setting again. When you're ready, give your thr
 - 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/tfidf_settings.py
 - 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
 - 🔧 `Bash`: Show the three settings now in the file
+- 🔧 `Bash`: Commit Part 1, push, and check for template updates
+I've set your three choices in the file:
+
+```
+REMOVE_STOP_WORDS = True
+MIN_MOVIES = 2
+REPEATS_COUNT_LESS = True
+```
+
+The slot now reads:
+
+```
+### The settings you chose, and why
+
+REMOVE_STOP_WORDS = True: because we don't need to include words without meaning.
+MIN_MOVIES = 2: because taking out the super-rare words will be beneficial
+REPEATS_COUNT_LESS = True: so we can weight things appropriately
+```
+
+Here's the commit and push:
+
+```
+Wrote TRANSCRIPT.md: 1 session(s).
+1 session(s) found; this session in TRANSCRIPT.md: yes.
+[main b11e85e] Part 1 done
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+To https://github.com/LorenzoGurrola/comp440-retrieval.git
+   417df5d..b11e85e  main -> main
+```
+
+Part 1 is saved on GitHub, and the template has no new changes.
+
+**Part 2: Top terms** (about 6 minutes). The packages are installed (the setup job printed `Installed 38 packages in 108ms`).
+
+Which two movies do you know well? The movies you rated in HW1 are in the collection.
+
+**User:**
+Beauty and The Beast (cartoon from the 90s), and Joker
+
+**Claude:**
+- 🔧 `Bash`: Show top TF-IDF terms for the two movies
+- 🔧 `Bash`: Show top TF-IDF terms for the 1991 film
+"Beauty and The Beast" matched two movies. You said the 90s cartoon, so I ran it again for the 1991 one.
+
+```
+2 movies match "Beauty and The Beast". Run it again with the whole title of one:
+  Beauty and the Beast (1991)
+  Beauty and the Beast (2017)
+```
+
+```
+Beauty and the Beast (1991): the 15 words with the highest TF-IDF weight in its plot summary.
+
+     word               weight  count here  movies
+  1. belle               0.436           2       5
+  2. castle              0.354           2      24
+  3. lesson              0.248           1       7
+  4. enchanted           0.244           1       8
+  5. beast               0.237           1      10
+  6. bright              0.229           1      13
+  7. important           0.217           1      19
+  8. staff               0.215           1      20
+  9. beauty              0.204           1      28
+ 10. follow              0.198           1      34
+ 11. prince              0.197           1      35
+ 12. adventures          0.195           1      37
+ 13. turned              0.177           1      63
+ 14. learns              0.169           1      80
+ 15. comes               0.155           1     121
+
+count here: how many times the word is in this plot summary. movies: how many of the 4,309 plot summaries have it.
+
+The plot summary: Follow the adventures of Belle, a bright young woman who finds herself in the castle of a prince who's been turned into a mysterious beast. With the help of the castle's enchanted staff, Belle soon learns the most important lesson of all -- that true beauty comes from within.
+
+Your settings: REMOVE_STOP_WORDS = True, MIN_MOVIES = 2, REPEATS_COUNT_LESS = True.
+```
+
+```
+Joker (2019): the 15 words with the highest TF-IDF weight in its plot summary.
+
+     word               weight  count here  movies
+  1. crime               0.332           2      94
+  2. comedian            0.309           1       5
+  3. psychopathic        0.302           1       6
+  4. gotham              0.284           1      10
+  5. insane              0.274           1      13
+  6. driven              0.271           1      14
+  7. 1980s               0.266           1      16
+  8. infamous            0.262           1      18
+  9. chaos               0.260           1      19
+ 10. failed              0.258           1      20
+ 11. stand               0.247           1      26
+ 12. figure              0.240           1      31
+ 13. turns               0.194           1      99
+ 14. city                0.171           1     173
+ 15. life                0.121           1     600
+
+count here: how many times the word is in this plot summary. movies: how many of the 4,309 plot summaries have it.
+
+The plot summary: During the 1980s, a failed stand-up comedian is driven insane and turns to a life of crime and chaos in Gotham City while becoming an infamous psychopathic crime figure.
+
+Your settings: REMOVE_STOP_WORDS = True, MIN_MOVIES = 2, REPEATS_COUNT_LESS = True.
+```
+
+**For each movie, what do the top terms get right and wrong about what makes it distinctive?** A sentence or two each is enough.
+
+**User:**
+For Beauty and the Beast, words like "belle" don't really capture the plot too well. For the Joker, my opinion is that all of the words capture the overall plot.
 
 <!-- end-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac -->
