@@ -46,11 +46,11 @@ What movie involves ants that revolt against their grasshopper overlords using t
 
 ### Which kind of question did TF-IDF handle best, and which worst? By how much?
 
-XXXX
+It did the best on the detailed questions (31/34 in the top 10), and the worst on the vague and reworded questions (0/33 for both).
 
 ### The misses you looked at: what do they have in common?
 
-XXXX
+TF-IDF succeeds when it matches many and/or specific words, such as character names, to the question. It fails when it matches few or unspecific words, such as "family" or "painting"
 
 ## Part 5: Embeddings
 
