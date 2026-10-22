@@ -34,11 +34,13 @@ For Beauty and the Beast, words like "belle" don't really capture the plot too w
 
 ### Your questions, as you typed them
 
-XXXX
+What movie has an adventurer in Utah trapped with a boulder over his arm for days, until he finally cuts it off and escapes
+What movie involves a robot that tricks a computer programmer to let her out of her enclosure by pretending to fall in love with him
+What movie involves ants that revolt against their grasshopper overlords using trickery and bravery
 
 ### Did the movies you meant come up? What did TF-IDF get right and wrong?
 
-XXXX
+1/3 movies were correct. I think if I used more keywords, TF-IDF mgiht have done better
 
 ## Part 4: The question bank
 
