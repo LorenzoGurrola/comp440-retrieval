@@ -10,11 +10,11 @@ Part 0 predictions stay as you first wrote them; Part 5 asks what you would chan
 
 ### Questions that name a character, place or thing: which method will do better, and why?
 
-XXXX
+TF-IDF because the words will match
 
 ### Vague descriptions: which method will do better, and why?
 
-XXXX
+Embeddings because they will capture more of the data if you can't recall specific words
 
 ## Part 1: Build the TF-IDF model
 
