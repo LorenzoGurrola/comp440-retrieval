@@ -28,7 +28,7 @@ REPEATS_COUNT_LESS = True: so we can weight things appropriately
 
 ### Your movies: what do the top terms get right and wrong about what makes each one distinctive?
 
-XXXX
+For Beauty and the Beast, words like "belle" don't really capture the plot too well. For the Joker, my opinion is that all of the words capture the overall plot.
 
 ## Part 3: Your own searches
 
