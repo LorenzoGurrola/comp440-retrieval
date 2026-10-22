@@ -7,7 +7,7 @@ summarized as one-liners.
 <!-- transcript-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac | 2026-10-22T14:13:48.462Z -->
 ## Session `16ad6d23`, 2026-10-22 14:13:48
 
-*15 user turns. Tool outputs and reasoning omitted.*
+*19 user turns. Tool outputs and reasoning omitted.*
 
 **User:**
 how long does this assignment take
@@ -408,5 +408,107 @@ What movie involves ants that revolt against their grasshopper overlords using t
 
 **User:**
 1/3 movies were correct. I think if I used more keywords, TF-IDF mgiht have done better
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Commit Part 3, push, and check for template updates
+- 🔧 `Bash`: Run the question bank with TF-IDF
+I've written it in. I kept your spelling ("mgiht"); just say if you want it changed. The slot now reads:
+
+```
+### Did the movies you meant come up? What did TF-IDF get right and wrong?
+
+1/3 movies were correct. I think if I used more keywords, TF-IDF mgiht have done better
+```
+
+Here's the commit and push:
+
+```
+Wrote TRANSCRIPT.md: 1 session(s).
+1 session(s) found; this session in TRANSCRIPT.md: yes.
+[main ace424c] Part 3 done
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+To https://github.com/LorenzoGurrola/comp440-retrieval.git
+   5c5a542..ace424c  main -> main
+```
+
+Part 3 is saved on GitHub, and the template has no new changes.
+
+**Part 4: The question bank** (about 9 minutes). This runs all 518 questions through TF-IDF with your settings:
+
+```
+TF-IDF, with your settings: REMOVE_STOP_WORDS = True, MIN_MOVIES = 2, REPEATS_COUNT_LESS = True.
+Ran 518 questions against 4,309 movies in under a second.
+
+TF-IDF put the right movie first for 18 of 100 written questions and in the top 10 for 31.
+  Of the 34 detail questions, it put 18 first and 31 in the top 10.
+  Of the 33 reworded questions, it put 0 first and 0 in the top 10.
+  Of the 33 vague questions, it put 0 first and 0 in the top 10.
+It put the right movie first for 21 of 418 real requests and in the top 10 for 68.
+
+Saved every question's top 10 in results/tfidf.json. To look through them: uv run python site.py
+```
+
+**Which kind of question did TF-IDF handle best, and which worst? By how much?** A sentence or two is enough.
+
+**User:**
+How many parts in this assignment
+
+**Claude:**
+The assignment has six parts, numbered 0 to 5. You've finished Parts 0 to 3, and you're on Part 4 now.
+
+- Part 4, the question bank: about 9 minutes. You answer two questions in it.
+- Part 5, embeddings: about 12 minutes. You answer four questions in it.
+
+That's about 20 minutes left. After Part 5, I'll check what's missing and give you the form to submit.
+
+When you're ready, the Part 4 question is still waiting: which kind of question did TF-IDF handle best, which did it handle worst, and by how much? A sentence or two is enough.
+
+**User:**
+It did quite poorly on all three question categories, but did the best on the detail questions.
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+I've written it in. The slot now reads:
+
+```
+### Which kind of question did TF-IDF handle best, and which worst? By how much?
+
+It did quite poorly on all three question categories, but did the best on the detail questions.
+```
+
+Your answer names the best kind, but the question also asks which kind was worst and by how much. Would you like to add that? A sentence is enough.
+
+**User:**
+Change my answer to: It did the best on the detailed questions (31/34 in the top 10), and the worst on the vague and reworded questions (0/33 for both).
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Show README's Part 4 section
+- 🔧 `Bash`: Start the comparison site
+- 🔧 `Bash`: Find README Part 4 and read the site's output
+- 🔧 `Read`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/README.md
+I've changed it. The slot now reads:
+
+```
+### Which kind of question did TF-IDF handle best, and which worst? By how much?
+
+It did the best on the detailed questions (31/34 in the top 10), and the worst on the vague and reworded questions (0/33 for both).
+```
+
+One way this could mislead you: someone wrote these questions while looking at the plot summaries, so a detail question may share more words with its summary than a person's real memory of the movie would.
+
+The site is running:
+
+```
+The site is running at http://localhost:8765. Stop it with Ctrl-C.
+```
+
+It should have opened in your browser. If it didn't, go to that address. It shows one question at a time: the right movie, where TF-IDF ranked it, and TF-IDF's top 10, with the words each movie shares with the question. Pick "TF-IDF missed" in the Show menu to see only the misses.
+
+Look through some answers, especially the misses, and tell me when you have. You can also tell me a question's id, like w026, if you want to talk about one.
+
+**User:**
+TF-IDF succeeds when it matches many and/or specific words, such as character names, to the question. It fails when it matches few or unspecific words, such as "family" or "painting"
 
 <!-- end-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac -->
