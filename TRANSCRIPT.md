@@ -7,7 +7,7 @@ summarized as one-liners.
 <!-- transcript-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac | 2026-10-22T14:13:48.462Z -->
 ## Session `16ad6d23`, 2026-10-22 14:13:48
 
-*7 user turns. Tool outputs and reasoning omitted.*
+*9 user turns. Tool outputs and reasoning omitted.*
 
 **User:**
 how long does this assignment take
@@ -130,5 +130,56 @@ Second prediction. A vague description is how you'd describe a movie to a friend
 
 **User:**
 Embeddings because they will capture more of the data if you can't recall specific words
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Refresh transcript, commit Part 0, and push
+- 🔧 `Read`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/tfidf_settings.py
+Here's the commit and push:
+
+```
+Wrote TRANSCRIPT.md: 1 session(s).
+1 session(s) found; this session in TRANSCRIPT.md: yes.
+[main 417df5d] Part 0 done
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+To https://github.com/LorenzoGurrola/comp440-retrieval.git
+   8ddbec7..417df5d  main -> main
+```
+
+Setup is done, and your predictions are saved on GitHub.
+
+**Part 1: Build the TF-IDF model** (about 6 minutes). In class, most students got through Part 3 or 4 and finished Part 5 at home. Everything is due 8:00am today, October 22.
+
+`tfidf_settings.py` has three settings. Words are always lowercased first, so "Dog" and "dog" count as one word. That part isn't a setting.
+
+**1. `REMOVE_STOP_WORDS`** (True or False; the file has `False`). Stop words are very common words. When this is True, they are dropped before scoring. Take "the dog of the farmer": with True, only "dog" and "farmer" are left. The list is scikit-learn's, and it covers more than "the" and "of". It also drops words like "bill", "fire", "name" and "system", plus the number words "one" to "twelve", except "seven".
+
+**2. `MIN_MOVIES`** (a whole number, 1 or more; the file has `1`). A word is kept only if it appears in at least this many plot summaries. With 3, a name that appears in only two summaries is dropped. 1 is the only value that keeps a word found in a single summary.
+
+**3. `REPEATS_COUNT_LESS`** (True or False; the file has `False`). This controls how much repeated words count. When True, a word that appears several times in one summary counts as 1 + log(count) instead of its full count. If "shark" appears 4 times, it counts as about 2.4 instead of 4.
+
+Please give your three choices, each with a reason, in one reply. Keeping the file's value counts as a choice and needs a reason too. A sentence or two each is enough.
+
+**User:**
+Explain why you said this: It also drops words like "bill", "fire", "name" and "system", plus the number words "one" to "twelve", except "seven".
+
+**Claude:**
+I mentioned it because of how this list was built. scikit-learn's English stop word list is about 300 words long. It comes from an older stop word list made by an information retrieval group at the University of Glasgow. Most of it is what you'd expect: "the", "of", "and", "about". But the list also has words that often carry meaning, like "bill", "fire", "name", "system", and most number words.
+
+"seven" isn't on the list. That's simply a quirk of the list, not a rule.
+
+So `True` drops more than filler words. Any word on the list is gone from every plot summary and from every question. The instructions for this activity ask me to point this out, so you know exactly what you're choosing between.
+
+If you'd like, I can explain any setting again. When you're ready, give your three choices, each with a reason, in one reply. A sentence or two each is enough.
+
+**User:**
+1. True, because we don't need to include words without meaning. 2. 2, because taking out the super-rare words will be beneficial, 3. True, so we can weight things appropriately
+
+**Claude:**
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/tfidf_settings.py
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/tfidf_settings.py
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/tfidf_settings.py
+- 🔧 `Edit`: /Users/lorenzogurrola/Desktop/Files/COMP440/comp440-retrieval/WRITEUP.md
+- 🔧 `Bash`: Show the three settings now in the file
 
 <!-- end-session: 16ad6d23-79b7-4ae2-a701-b461a8f4e6ac -->
