@@ -20,7 +20,9 @@ Embeddings because they will capture more of the data if you can't recall specif
 
 ### The settings you chose, and why
 
-XXXX
+REMOVE_STOP_WORDS = True: because we don't need to include words without meaning.
+MIN_MOVIES = 2: because taking out the super-rare words will be beneficial
+REPEATS_COUNT_LESS = True: so we can weight things appropriately
 
 ## Part 2: Top terms
 

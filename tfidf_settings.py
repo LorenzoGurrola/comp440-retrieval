@@ -12,13 +12,13 @@ from these three values. Words are always lowercased first, so "Dog" and "dog" a
 
 # Leave out about 300 common English words, such as "the", "a", "of" and "about", using
 # scikit-learn's list. True or False. (stop_words="english" when True)
-REMOVE_STOP_WORDS = False
+REMOVE_STOP_WORDS = True
 
 # Keep only the words that appear in the plot summaries of at least this many movies. A whole
 # number, 1 or more. 1 keeps every word. (min_df)
-MIN_MOVIES = 1
+MIN_MOVIES = 2
 
 # When a word appears several times in one plot summary, count it less than its full count:
 # 1 + log(count) instead of count, so 4 appearances count as about 2.4. True or False.
 # (sublinear_tf)
-REPEATS_COUNT_LESS = False
+REPEATS_COUNT_LESS = True
